@@ -1,5 +1,5 @@
 import sqlite3
-from typing import Tuple, Optional, Dict, Any
+from typing import Tuple, Optional, Dict, Any, List
 
 class DatabaseService:
     """
@@ -143,3 +143,18 @@ class DatabaseService:
                 )
                 conn.commit()
                 return False, msg
+
+    def list_tickets(self, limit: int = 20) -> List[Dict[str, Any]]:
+        """Lấy danh sách các vé mới nhất trong CSDL"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM tickets ORDER BY created_at DESC LIMIT ?;", (limit,))
+            return [dict(r) for r in cursor.fetchall()]
+
+    def list_logs(self, limit: int = 30) -> List[Dict[str, Any]]:
+        """Lấy danh sách nhật ký soát vé mới nhất"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM checkin_logs ORDER BY id DESC LIMIT ?;", (limit,))
+            return [dict(r) for r in cursor.fetchall()]
+

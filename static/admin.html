@@ -12,7 +12,49 @@
     .admin-container {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 24px;
+      gap: 20px;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--hairline);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--ink-subtle);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--ink);
+      background: var(--surface-2);
+    }
+
+    .tab-btn.active {
+      color: var(--ink);
+      background: var(--surface-2);
+      border-color: var(--hairline-strong);
+      font-weight: 600;
+    }
+
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
     }
 
     .attacks-grid {
@@ -53,31 +95,49 @@
       font-size: 12px;
       color: var(--ink-subtle);
       line-height: 1.5;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
+    }
+
+    .control-box {
+      background: var(--surface-2);
+      border: 1px solid var(--hairline);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      font-size: 12px;
+    }
+
+    .control-box label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--ink-subtle);
+      font-size: 11px;
+      margin-bottom: 6px;
+      font-weight: 500;
     }
 
     .attack-output {
       margin-top: 14px;
-      padding: 10px;
+      padding: 12px;
       border-radius: 6px;
       font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
       background: var(--surface-2);
       border: 1px solid var(--hairline);
       display: none;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     .threads-cluster {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      margin: 8px 0;
+      margin: 10px 0;
     }
 
     .thread-node {
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       border-radius: 4px;
       font-size: 10px;
       font-weight: 600;
@@ -89,6 +149,60 @@
     }
     .thread-node.pass { background: var(--success); }
     .thread-node.block { background: var(--danger); opacity: 0.85; }
+
+    /* Table styles for Live DB */
+    .data-table-wrapper {
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    table.data-table th {
+      background: var(--surface-2);
+      color: var(--ink-subtle);
+      font-weight: 600;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--hairline);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    table.data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--hairline);
+      color: var(--ink);
+    }
+
+    table.data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .status-badge.active { background: var(--success-subtle); color: var(--success); border: 1px solid rgba(39,166,68,0.3); }
+    .status-badge.used { background: var(--danger-subtle); color: var(--danger); border: 1px solid rgba(235,87,87,0.3); }
+
+    .slider-input {
+      width: 100%;
+      accent-color: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -119,7 +233,7 @@
       <button class="icon-btn" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối">
         <span id="themeIcon">☀️</span>
       </button>
-      <button class="btn btn-secondary" style="height: 32px; font-size: 11px;" onclick="logoutAdmin()" id="btnLogout" style="display: none;">
+      <button class="btn btn-secondary" style="height: 32px; font-size: 11px; display: none;" onclick="logoutAdmin()" id="btnLogout">
         Đăng Xuất
       </button>
     </div>
@@ -154,13 +268,13 @@
     <!-- 2. Security Lab Dashboard -->
     <div id="labSection" class="admin-container" style="display: none;">
       
-      <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
         <div>
           <h1 style="font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 4px;" id="titleSecurityLab">
             Phòng Thí Nghiệm An Ninh & Quản Trị Hệ Thống
           </h1>
           <p style="font-size: 13px; color: var(--ink-subtle);" id="descSecurityLab">
-            Môi trường kiểm toán mật mã và kích hoạt các kịch bản tấn công thực tế từ server Python.
+            Môi trường kiểm toán mật mã và kích hoạt các kịch bản tấn công tương tác từ server Python.
           </p>
         </div>
         <div>
@@ -170,85 +284,218 @@
         </div>
       </div>
 
-      <!-- 3 Attack Simulation Cards -->
-      <div class="attacks-grid">
-        
-        <!-- Attack 1: Forgery / Tamper -->
-        <div class="attack-card">
-          <div>
-            <span class="attack-tag">CHƯƠNG 3 • CHỮ KÝ SỐ</span>
-            <div class="attack-title" id="titleAttack1">1. Làm giả dữ liệu vé</div>
-            <div class="attack-desc" id="descAttack1">
-              Kẻ tấn công sửa trường dữ liệu hạng vé (Standard → VIP) mà không có Private Key máy chủ để ký lại.
-            </div>
-          </div>
-          <div>
-            <button class="btn btn-danger" style="width: 100%;" onclick="runBackendAttack('tamper')">
-              <span id="btnTrigger1">🚨 Thử giả mạo chữ ký</span>
-            </button>
-            <div id="outputTamper" class="attack-output"></div>
-          </div>
-        </div>
-
-        <!-- Attack 2: Replay Attack -->
-        <div class="attack-card">
-          <div>
-            <span class="attack-tag">CHƯƠNG 5 • AN NINH MẠNG</span>
-            <div class="attack-title" id="titleAttack2">2. Tấn công phát lại (Replay)</div>
-            <div class="attack-desc" id="descAttack2">
-              Dùng ảnh chụp màn hình QR cũ quá 30 giây hoặc gửi lại gói tin quét đã từng sử dụng.
-            </div>
-          </div>
-          <div>
-            <button class="btn btn-danger" style="width: 100%;" onclick="runBackendAttack('replay')">
-              <span id="btnTrigger2">⏰ Thử gửi mã hết hạn (>30s)</span>
-            </button>
-            <div id="outputReplay" class="attack-output"></div>
-          </div>
-        </div>
-
-        <!-- Attack 3: Concurrency Flood -->
-        <div class="attack-card">
-          <div>
-            <span class="attack-tag">CHƯƠNG 4 • CƠ SỞ DỮ LIỆU</span>
-            <div class="attack-title" id="titleAttack3">3. Tranh chấp đồng thời</div>
-            <div class="attack-desc" id="descAttack3">
-              Mô phỏng 20 cổng quét nã request check-in cùng 1 mili-giây. Kiểm chứng Atomic Lock chống Race Condition.
-            </div>
-          </div>
-          <div>
-            <button class="btn btn-danger" style="width: 100%;" onclick="runBackendAttack('concurrency')">
-              <span id="btnTrigger3">💥 Nã 20 requests đồng thời</span>
-            </button>
-            <div id="outputConcurrency" class="attack-output"></div>
-          </div>
-        </div>
-
+      <!-- Navigation Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('tabAttacks')" id="tabBtnAttacks">
+          🎯 Kịch Bản Tấn Công Thực Nghiệm
+        </button>
+        <button class="tab-btn" onclick="switchTab('tabDatabase')" id="tabBtnDatabase">
+          🗄️ Giám Sát Cơ Sở Dữ Liệu SQLite
+        </button>
+        <button class="tab-btn" onclick="switchTab('tabCrypto')" id="tabBtnCrypto">
+          🔬 Bóc Tách Mật Mã Học (AES & ECDSA)
+        </button>
       </div>
 
-      <!-- Cryptographic Inspector Component -->
-      <div class="card-panel">
-        <div class="card-panel-title">
-          <span id="titleInspector">Bóc Tách Mật Mã Học Máy Chủ (Server Cryptographic Inspector)</span>
+      <!-- TAB 1: ATTACK SIMULATIONS -->
+      <div id="tabAttacks" class="tab-content active">
+        <div class="attacks-grid">
+          
+          <!-- Attack 1: Forgery / Tamper -->
+          <div class="attack-card">
+            <div>
+              <span class="attack-tag">CHƯƠNG 3 • CHỮ KÝ SỐ</span>
+              <div class="attack-title" id="titleAttack1">1. Làm giả dữ liệu vé</div>
+              <div class="attack-desc" id="descAttack1">
+                Kẻ tấn công sửa trường dữ liệu hạng vé hoặc mã vé mà không có Private Key máy chủ để ký số lại.
+              </div>
+
+              <!-- Interactive Controls -->
+              <div class="control-box">
+                <label>
+                  <span>Mục can thiệp:</span>
+                </label>
+                <select id="selectTamperField" class="form-control" style="font-size: 12px; height: 32px; margin-bottom: 8px;" onchange="updateTamperInput()">
+                  <option value="tier">Nâng hạng vé (tier: VIP -> SUPER_VIP)</option>
+                  <option value="tid">Sửa mã định danh vé (tid)</option>
+                  <option value="sig">Làm hỏng byte chữ ký số (Corrupt Sig)</option>
+                </select>
+                <input type="text" id="inputTamperValue" class="form-control" value="SUPER_VIP_HACKED" style="font-size: 12px; height: 32px;">
+              </div>
+            </div>
+            <div>
+              <button class="btn btn-danger" style="width: 100%;" onclick="runCustomTamperAttack()">
+                <span id="btnTrigger1">🚨 Thực Thi Tấn Công Giả Mạo</span>
+              </button>
+              <div id="outputTamper" class="attack-output"></div>
+            </div>
+          </div>
+
+          <!-- Attack 2: Replay Attack -->
+          <div class="attack-card">
+            <div>
+              <span class="attack-tag">CHƯƠNG 5 • AN NINH MẠNG</span>
+              <div class="attack-title" id="titleAttack2">2. Tấn công phát lại (Replay)</div>
+              <div class="attack-desc" id="descAttack2">
+                Dùng ảnh chụp màn hình QR cũ quá 30 giây hoặc gửi lại gói tin chứa Nonce đã dùng.
+              </div>
+
+              <!-- Interactive Controls -->
+              <div class="control-box">
+                <label>
+                  <span>Độ tuổi mã QR gửi lại:</span>
+                  <strong id="lblSliderAge" style="color: var(--primary);">45 giây</strong>
+                </label>
+                <input type="range" id="sliderAge" min="5" max="300" step="5" value="45" class="slider-input" oninput="document.getElementById('lblSliderAge').textContent = this.value + ' giây'">
+                
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                  <input type="checkbox" id="chkDupNonce">
+                  <label for="chkDupNonce" style="margin: 0; cursor: pointer; color: var(--ink);">Gửi trùng Nonce đã dùng</label>
+                </div>
+              </div>
+            </div>
+            <div>
+              <button class="btn btn-danger" style="width: 100%;" onclick="runCustomReplayAttack()">
+                <span id="btnTrigger2">⏰ Thực Thi Tấn Công Replay</span>
+              </button>
+              <div id="outputReplay" class="attack-output"></div>
+            </div>
+          </div>
+
+          <!-- Attack 3: Concurrency Flood -->
+          <div class="attack-card">
+            <div>
+              <span class="attack-tag">CHƯƠNG 4 • CƠ SỞ DỮ LIỆU</span>
+              <div class="attack-title" id="titleAttack3">3. Tranh chấp đồng thời</div>
+              <div class="attack-desc" id="descAttack3">
+                Mô phỏng N cổng quét nã request check-in cùng 1 mili-giây. Kiểm chứng Atomic Lock chống Race Condition.
+              </div>
+
+              <!-- Interactive Controls -->
+              <div class="control-box">
+                <label>
+                  <span>Số luồng chạy song song:</span>
+                  <strong id="lblSliderThreads" style="color: var(--primary);">20 luồng</strong>
+                </label>
+                <input type="range" id="sliderThreads" min="5" max="40" step="5" value="20" class="slider-input" oninput="document.getElementById('lblSliderThreads').textContent = this.value + ' luồng'">
+                <div style="font-size: 11px; color: var(--ink-subtle); margin-top: 6px;">
+                  Mỗi luồng đại diện cho 1 máy quét gửi đồng thời qua Threading Python.
+                </div>
+              </div>
+            </div>
+            <div>
+              <button class="btn btn-danger" style="width: 100%;" onclick="runCustomConcurrencyAttack()">
+                <span id="btnTrigger3">💥 Bắn Luồng Đồng Thời</span>
+              </button>
+              <div id="outputConcurrency" class="attack-output"></div>
+            </div>
+          </div>
+
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      </div>
+
+      <!-- TAB 2: LIVE DATABASE VIEWER -->
+      <div id="tabDatabase" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
           <div>
-            <div style="font-size: 11px; color: var(--ink-subtle); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace;">
-              SERVER PUBLIC KEY (ECDSA NIST P-256)
-            </div>
-            <div class="code-snippet" id="keyDisplay" style="font-size: 10px; max-height: 120px;">Đang tải khóa...</div>
+            <h2 style="font-size: 14px; font-weight: 600; color: var(--ink);">Dữ Liệu Bảng tickets Trong SQLite</h2>
+            <p style="font-size: 12px; color: var(--ink-subtle);">Thông tin các vé được lưu trữ trong CSDL và giải mã trường mã hóa</p>
           </div>
-          <div>
-            <div style="font-size: 11px; color: var(--ink-subtle); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace;">
-              AES-256-GCM DATA INTEGRITY STATUS
+          <button class="btn btn-secondary" onclick="fetchLiveDatabase()" style="font-size: 12px; height: 32px;">
+            🔄 Tải Lại CSDL
+          </button>
+        </div>
+
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>MÃ ĐỊNH DANH (ID)</th>
+                <th>CHỦ VÉ (GIẢI MÃ AES)</th>
+                <th>CIPHERTEXT (MÃ HÓA)</th>
+                <th>HẠNG VÉ</th>
+                <th>TRẠNG THÁI</th>
+                <th>CỔNG VÀO</th>
+                <th>THỜI GIAN SOÁT VÉ</th>
+              </tr>
+            </thead>
+            <tbody id="tableTicketsBody">
+              <tr><td colspan="7" style="text-align: center; color: var(--ink-subtle);">Đang nạp dữ liệu từ SQLite...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 24px; margin-bottom: 12px;">
+          <h2 style="font-size: 14px; font-weight: 600; color: var(--ink);">Nhật Ký Soát Vé (Bảng checkin_logs)</h2>
+          <p style="font-size: 12px; color: var(--ink-subtle);">Lưu trữ dấu vết kiểm toán cho mọi lần quét hợp lệ và bị từ chối</p>
+        </div>
+
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>MÃ VÉ</th>
+                <th>CỔNG QUÉT</th>
+                <th>KẾT QUẢ</th>
+                <th>THÔNG ĐIỆP GHI NHẬN</th>
+                <th>THỜI ĐIỂM (TIMESTAMP)</th>
+              </tr>
+            </thead>
+            <tbody id="tableLogsBody">
+              <tr><td colspan="6" style="text-align: center; color: var(--ink-subtle);">Đang nạp nhật ký...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 3: CRYPTO PLAYGROUND -->
+      <div id="tabCrypto" class="tab-content">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          
+          <!-- Section 1: Server ECDSA Key -->
+          <div class="card-panel">
+            <div class="card-panel-title">
+              <span>Khóa Công Khai Máy Chủ (ECDSA NIST P-256 Public Key)</span>
             </div>
-            <div class="code-snippet" style="font-size: 11px; line-height: 1.8;">
-              • Cipher: AES-256-GCM<br>
-              • Key Length: 256 bits (32 bytes)<br>
-              • Nonce: 96-bit Random CSPRNG<br>
-              • Tag: 128-bit Authentication Tag (MAC)
+            <p style="font-size: 12px; color: var(--ink-subtle); margin-bottom: 12px;">
+              Khóa công khai chuẩn X.509 PEM được công bố rộng rãi để các cổng soát vé đối chiếu chữ ký số SHA-256.
+            </p>
+            <div class="code-snippet" id="keyDisplay" style="font-size: 10px; max-height: 180px; overflow-y: auto;">Đang tải khóa...</div>
+            <div style="margin-top: 12px; font-size: 11px; color: var(--ink-subtle); line-height: 1.6;">
+              • Thuật toán: ECDSA SECP256R1 (NIST P-256)<br>
+              • Kích thước chữ ký: ~64 bytes (Dạng IEEE P1363 / R||S)<br>
+              • Độ dài cửa sổ thời gian (Window TTL): 30 giây
             </div>
           </div>
+
+          <!-- Section 2: Interactive AES-256-GCM Playground -->
+          <div class="card-panel">
+            <div class="card-panel-title">
+              <span>Thực Nghiệm Mã Hóa Xác Thực AES-256-GCM (Chương 1 & 2)</span>
+            </div>
+            <p style="font-size: 12px; color: var(--ink-subtle); margin-bottom: 12px;">
+              Nhập thông tin cá nhân của người tham dự để bóc tách 3 thành phần: Nonce 96-bit, Ciphertext và 128-bit MAC Tag.
+            </p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <div class="form-group" style="margin: 0;">
+                <label style="font-size: 11px;">Họ và tên:</label>
+                <input type="text" id="aesInputName" class="form-control" value="Trần Thị Bình" style="font-size: 12px; height: 32px;">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label style="font-size: 11px;">Số CCCD / Mã SV:</label>
+                <input type="text" id="aesInputId" class="form-control" value="034202009988" style="font-size: 12px; height: 32px;">
+              </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="runAesEncrypt()" style="font-size: 12px; height: 34px; width: 100%; margin-bottom: 12px;">
+              🔐 Mã Hóa Dữ Liệu Bằng AES-256-GCM
+            </button>
+
+            <div id="aesResultBox" class="code-snippet" style="display: none; font-size: 11px; line-height: 1.6;"></div>
+          </div>
+
         </div>
       </div>
 
@@ -276,18 +523,20 @@
         lblPass: "Mật khẩu (Thử: admin123)",
         btnAdminLogin: "Xác Nhận Truy Cập Lab",
         titleSecurityLab: "Phòng Thí Nghiệm An Ninh & Quản Trị Hệ Thống",
-        descSecurityLab: "Môi trường kiểm toán mật mã và kích hoạt các kịch bản tấn công thực tế từ server Python.",
+        descSecurityLab: "Môi trường kiểm toán mật mã và kích hoạt các kịch bản tấn công tương tác từ server Python.",
         btnResetTicket: "🔄 Đặt Lại Trạng Thái Vé (Active)",
+        tabBtnAttacks: "🎯 Kịch Bản Tấn Công Thực Nghiệm",
+        tabBtnDatabase: "🗄️ Giám Sát Cơ Sở Dữ Liệu SQLite",
+        tabBtnCrypto: "🔬 Bóc Tách Mật Mã Học (AES & ECDSA)",
         titleAttack1: "1. Làm giả dữ liệu vé",
-        descAttack1: "Kẻ tấn công sửa trường dữ liệu hạng vé (Standard → VIP) mà không có Private Key máy chủ để ký lại.",
-        btnTrigger1: "🚨 Thử giả mạo chữ ký",
+        descAttack1: "Kẻ tấn công sửa trường dữ liệu hạng vé hoặc mã vé mà không có Private Key máy chủ để ký số lại.",
+        btnTrigger1: "🚨 Thực Thi Tấn Công Giả Mạo",
         titleAttack2: "2. Tấn công phát lại (Replay)",
-        descAttack2: "Dùng ảnh chụp màn hình QR cũ quá 30 giây hoặc gửi lại gói tin quét đã từng sử dụng.",
-        btnTrigger2: "⏰ Thử gửi mã hết hạn (>30s)",
+        descAttack2: "Dùng ảnh chụp màn hình QR cũ quá 30 giây hoặc gửi lại gói tin chứa Nonce đã dùng.",
+        btnTrigger2: "⏰ Thực Thi Tấn Công Replay",
         titleAttack3: "3. Tranh chấp đồng thời",
-        descAttack3: "Mô phỏng 20 cổng quét nã request check-in cùng 1 mili-giây. Kiểm chứng Atomic Lock chống Race Condition.",
-        btnTrigger3: "💥 Nã 20 requests đồng thời",
-        titleInspector: "Bóc Tách Mật Mã Học Máy Chủ (Server Cryptographic Inspector)",
+        descAttack3: "Mô phỏng N cổng quét nã request check-in cùng 1 mili-giây. Kiểm chứng Atomic Lock chống Race Condition.",
+        btnTrigger3: "💥 Bắn Luồng Đồng Thời",
         linkBackAttendee: "← Cổng Khách Mua Vé",
         linkGatekeeper: "Cổng Soát Vé Bảo Vệ →",
         btnLogout: "Đăng Xuất"
@@ -300,18 +549,20 @@
         lblPass: "Password (Default: admin123)",
         btnAdminLogin: "Authenticate to Lab",
         titleSecurityLab: "Security Lab & Administration Console",
-        descSecurityLab: "Cryptographic inspection environment and live attack simulation harness from Python backend.",
+        descSecurityLab: "Interactive cryptographic inspection and live attack simulation harness from Python backend.",
         btnResetTicket: "🔄 Reset Ticket Status (Active)",
+        tabBtnAttacks: "🎯 Live Attack Scenarios",
+        tabBtnDatabase: "🗄️ SQLite Database Explorer",
+        tabBtnCrypto: "🔬 Cryptographic Inspector (AES & ECDSA)",
         titleAttack1: "1. Ticket Forgery Attack",
-        descAttack1: "Adversary alters ticket tier payload without possession of the server's private key.",
-        btnTrigger1: "🚨 Simulate Signature Forgery",
+        descAttack1: "Adversary alters ticket payload fields without possession of the server's ECDSA private key.",
+        btnTrigger1: "🚨 Execute Forgery Attack",
         titleAttack2: "2. Replay Attack",
         descAttack2: "Adversary submits an expired QR screenshot (>30s) or replays previously submitted nonces.",
-        btnTrigger2: "⏰ Submit Expired QR (>30s)",
+        btnTrigger2: "⏰ Execute Replay Attack",
         titleAttack3: "3. Concurrency Race Condition",
-        descAttack3: "Simulate 20 gate terminals sending check-ins in the exact same millisecond. Tests atomic update.",
-        btnTrigger3: "💥 Fire 20 Concurrent Requests",
-        titleInspector: "Server Cryptographic Inspector",
+        descAttack3: "Simulate N gate terminals sending check-ins in the exact same millisecond. Tests atomic update.",
+        btnTrigger3: "💥 Fire Concurrent Threads",
         linkBackAttendee: "← Attendee Portal",
         linkGatekeeper: "Gatekeeper Terminal →",
         btnLogout: "Log Out"
@@ -329,6 +580,9 @@
       document.getElementById('titleSecurityLab').textContent = t.titleSecurityLab;
       document.getElementById('descSecurityLab').textContent = t.descSecurityLab;
       document.getElementById('btnResetTicket').textContent = t.btnResetTicket;
+      document.getElementById('tabBtnAttacks').textContent = t.tabBtnAttacks;
+      document.getElementById('tabBtnDatabase').textContent = t.tabBtnDatabase;
+      document.getElementById('tabBtnCrypto').textContent = t.tabBtnCrypto;
       document.getElementById('titleAttack1').textContent = t.titleAttack1;
       document.getElementById('descAttack1').textContent = t.descAttack1;
       document.getElementById('btnTrigger1').textContent = t.btnTrigger1;
@@ -338,7 +592,6 @@
       document.getElementById('titleAttack3').textContent = t.titleAttack3;
       document.getElementById('descAttack3').textContent = t.descAttack3;
       document.getElementById('btnTrigger3').textContent = t.btnTrigger3;
-      document.getElementById('titleInspector').textContent = t.titleInspector;
       document.getElementById('linkBackAttendee').textContent = t.linkBackAttendee;
       document.getElementById('linkGatekeeper').textContent = t.linkGatekeeper;
       document.getElementById('btnLogout').textContent = t.btnLogout;
@@ -356,6 +609,37 @@
       const next = current === 'dark' ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
       document.getElementById('themeIcon').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      if (tabId === 'tabAttacks') document.getElementById('tabBtnAttacks').classList.add('active');
+      if (tabId === 'tabDatabase') {
+        document.getElementById('tabBtnDatabase').classList.add('active');
+        fetchLiveDatabase();
+      }
+      if (tabId === 'tabCrypto') {
+        document.getElementById('tabBtnCrypto').classList.add('active');
+        fetchServerKeys();
+      }
+
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function updateTamperInput() {
+      const sel = document.getElementById('selectTamperField').value;
+      const inp = document.getElementById('inputTamperValue');
+      if (sel === 'tier') {
+        inp.style.display = 'block';
+        inp.value = 'SUPER_VIP_HACKED';
+      } else if (sel === 'tid') {
+        inp.style.display = 'block';
+        inp.value = 'TK-FORGED-9999';
+      } else {
+        inp.style.display = 'none';
+      }
     }
 
     function loginAdmin() {
@@ -399,65 +683,218 @@
         const res = await fetch("/api/admin/reset-ticket?authorization=admin123", { method: "POST" });
         const data = await res.json();
         alert(data.message);
+        fetchLiveDatabase();
       } catch (err) {
         alert("Lỗi kết nối server: " + err.message);
       }
     }
 
-    async function runBackendAttack(type) {
-      if (type === 'tamper') {
-        const out = document.getElementById('outputTamper');
-        out.style.display = 'block';
-        out.innerHTML = `Đang chạy tấn công trên Server Python...`;
+    // 1. Custom Tamper Attack
+    async function runCustomTamperAttack() {
+      const sel = document.getElementById('selectTamperField').value;
+      const val = document.getElementById('inputTamperValue').value;
+      const isCorruptSig = (sel === 'sig');
 
-        const res = await fetch("/api/admin/test-tamper?authorization=admin123", { method: "POST" });
+      const out = document.getElementById('outputTamper');
+      out.style.display = 'block';
+      out.innerHTML = `<span style="color:var(--primary)">Đang gửi can thiệp đến máy chủ...</span>`;
+
+      try {
+        const res = await fetch("/api/admin/test-tamper?authorization=admin123", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            field_to_modify: sel,
+            new_value: val,
+            corrupt_signature: isCorruptSig
+          })
+        });
         const d = await res.json();
-        
-        out.innerHTML = `
-          <div style="color: var(--danger); font-weight: 600; margin-bottom: 3px;">🚨 BẮT ĐƯỢC GIẢ MẠO CHỮ KÝ</div>
-          <div>• Thay đổi: ${d.modified_field}</div>
-          <div>• ECDSA Verify(Pub, Hash, Sig) = <strong style="color:var(--danger)">${d.ecdsa_verification_result}</strong></div>
-          <div style="color: var(--ink-subtle); margin-top: 3px;">=> ${d.explanation}</div>
-        `;
-      } else if (type === 'replay') {
-        const out = document.getElementById('outputReplay');
-        out.style.display = 'block';
-        out.innerHTML = `Đang kiểm tra Replay Attack trên Server...`;
 
-        const res = await fetch("/api/admin/test-replay?authorization=admin123", { method: "POST" });
+        out.innerHTML = `
+          <div style="color: var(--danger); font-weight: 600; margin-bottom: 4px;">🚨 BẮT ĐƯỢC GIẢ MẠO CHỮ KÝ SỐ</div>
+          <div>• Can thiệp: <strong>${d.modified_field}</strong></div>
+          <div>• SHA-256 bản gốc: <code style="color:var(--success)">${d.original_sha256}</code></div>
+          <div>• SHA-256 bản sửa: <code style="color:var(--danger)">${d.tampered_sha256}</code></div>
+          <div>• ECDSA Verify(Pub, Hash, Sig) = <strong style="color:var(--danger)">${d.ecdsa_verification_result} (FALSE)</strong></div>
+          <div style="color: var(--ink-subtle); margin-top: 4px; font-size: 10px;">=> Chữ ký số gắn liền với nội dung bản tin. Mọi thay đổi dù chỉ 1 bit đều làm sai lệch mã băm và bị phát hiện.</div>
+        `;
+      } catch (err) {
+        out.textContent = "Lỗi kết nối: " + err.message;
+      }
+    }
+
+    // 2. Custom Replay Attack
+    async function runCustomReplayAttack() {
+      const age = parseInt(document.getElementById('sliderAge').value, 10);
+      const dup = document.getElementById('chkDupNonce').checked;
+
+      const out = document.getElementById('outputReplay');
+      out.style.display = 'block';
+      out.innerHTML = `<span style="color:var(--primary)">Đang gửi kiểm tra phát lại (Replay)...</span>`;
+
+      try {
+        const res = await fetch("/api/admin/test-replay?authorization=admin123", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            age_seconds: age,
+            duplicate_nonce: dup
+          })
+        });
         const d = await res.json();
 
-        out.innerHTML = `
-          <div style="color: var(--danger); font-weight: 600; margin-bottom: 3px;">⏰ BẮT ĐƯỢC REPLAY ATTACK</div>
-          <div>• Độ tuổi gói tin: ${d.timestamp_age_seconds}s (Ngưỡng cho phép: <= ${d.allowed_threshold_seconds}s)</div>
-          <div>• Server phản hồi: ${d.server_response}</div>
-          <div style="color: var(--ink-subtle); margin-top: 3px;">=> ${d.explanation}</div>
-        `;
-      } else if (type === 'concurrency') {
-        const out = document.getElementById('outputConcurrency');
-        out.style.display = 'block';
-        out.innerHTML = `Đang nã 20 luồng đồng thời vào CSDL SQLite...`;
+        const isDetected = d.attack_detected;
+        const color = isDetected ? 'var(--danger)' : 'var(--success)';
+        const title = isDetected ? '⏰ TỪ CHỐI (PHÁT HIỆN REPLAY/QUÁ HẠN)' : '✓ HỢP LỆ (TRONG CỬA SỔ CHO PHÉP)';
 
-        const res = await fetch("/api/admin/test-concurrency?authorization=admin123", { method: "POST" });
+        out.innerHTML = `
+          <div style="color: ${color}; font-weight: 600; margin-bottom: 4px;">${title}</div>
+          <div>• Độ tuổi gói tin thử nghiệm: <strong>${d.timestamp_age_seconds}s</strong> (Ngưỡng cho phép: <= 30s)</div>
+          <div>• Kiểm tra NonceCache trùng lặp: <strong>${d.duplicate_nonce_tested ? 'CÓ (Trùng lặp)' : 'KHÔNG (Mới)'}</strong></div>
+          <div>• Phản hồi từ Server: <code style="color:${color}">${d.server_response}</code></div>
+          <div style="color: var(--ink-subtle); margin-top: 4px; font-size: 10px;">=> ${d.explanation}</div>
+        `;
+      } catch (err) {
+        out.textContent = "Lỗi kết nối: " + err.message;
+      }
+    }
+
+    // 3. Custom Concurrency Attack
+    async function runCustomConcurrencyAttack() {
+      const count = parseInt(document.getElementById('sliderThreads').value, 10);
+
+      const out = document.getElementById('outputConcurrency');
+      out.style.display = 'block';
+      out.innerHTML = `<span style="color:var(--primary)">Đang nã ${count} luồng đồng thời vào SQLite ACID Transaction...</span>`;
+
+      try {
+        const res = await fetch("/api/admin/test-concurrency?authorization=admin123", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ thread_count: count })
+        });
         const d = await res.json();
 
         let nodesHtml = '';
         for (let r of d.results_details) {
           if (r.success) {
-            nodesHtml += `<div class="thread-node pass" title="Worker ${r.worker_id}: Thành công (rowcount=1)">${r.worker_id}</div>`;
+            nodesHtml += `<div class="thread-node pass" title="Luồng #${r.worker_id}: Thành công (rowcount=1)">${r.worker_id}</div>`;
           } else {
-            nodesHtml += `<div class="thread-node block" title="Worker ${r.worker_id}: Bị từ chối">${r.worker_id}</div>`;
+            nodesHtml += `<div class="thread-node block" title="Luồng #${r.worker_id}: Bị chặn (rowcount=0)">${r.worker_id}</div>`;
           }
         }
 
         out.innerHTML = `
-          <div style="color: var(--success); font-weight: 600; margin-bottom: 4px;">💥 KẾT QUẢ: ${d.success_admitted} THÀNH CÔNG, ${d.rejected_blocked} BỊ CHẶN</div>
-          <div>20 luồng Python chạy song song (Multithreading):</div>
+          <div style="color: var(--success); font-weight: 600; margin-bottom: 4px;">💥 KẾT QUẢ: ${d.success_admitted} DUYỆT, ${d.rejected_blocked} CHẶN (${d.duration_ms} ms)</div>
+          <div>Trạng thái ${count} luồng Python thực thi cùng lúc:</div>
           <div class="threads-cluster">${nodesHtml}</div>
-          <div>• Đúng 1 luồng nhận <code>rowcount = 1</code> (Chấp thuận)</div>
-          <div>• 19 luồng nhận <code>rowcount = 0</code> (Từ chối)</div>
-          <div style="color: var(--ink-subtle); margin-top: 3px;">=> ${d.explanation}</div>
+          <div>• Duy nhất 1 luồng nhận <code>rowcount = 1</code> (Chấp thuận)</div>
+          <div>• ${d.rejected_blocked} luồng nhận <code>rowcount = 0</code> (Từ chối)</div>
+          <div style="color: var(--ink-subtle); margin-top: 4px; font-size: 10px;">=> ${d.explanation}</div>
         `;
+      } catch (err) {
+        out.textContent = "Lỗi kết nối: " + err.message;
+      }
+    }
+
+    // 4. Live SQLite Database Viewer
+    async function fetchLiveDatabase() {
+      const tBody = document.getElementById('tableTicketsBody');
+      const lBody = document.getElementById('tableLogsBody');
+      
+      try {
+        const res = await fetch("/api/admin/database-records?authorization=admin123");
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Render tickets
+        if (data.tickets.length === 0) {
+          tBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Chưa có bản ghi nào</td></tr>`;
+        } else {
+          tBody.innerHTML = data.tickets.map(t => `
+            <tr>
+              <td><strong style="font-family:'JetBrains Mono'">${t.id}</strong></td>
+              <td>${t.owner_decrypted ? t.owner_decrypted.full_name : '—'}</td>
+              <td><code style="font-size:10px; color:var(--ink-subtle)">${t.owner_name_enc.substring(0, 24)}...</code></td>
+              <td><span class="badge-tag">${t.tier}</span></td>
+              <td>
+                <span class="status-badge ${t.status.toLowerCase()}">${t.status === 'ACTIVE' ? 'HỢP LỆ' : 'ĐÃ DÙNG'}</span>
+              </td>
+              <td>${t.gate_id || '—'}</td>
+              <td><span style="font-size:11px; color:var(--ink-subtle)">${t.used_at || 'Chưa check-in'}</span></td>
+            </tr>
+          `).join('');
+        }
+
+        // Render logs
+        if (data.logs.length === 0) {
+          lBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Chưa có nhật ký nào</td></tr>`;
+        } else {
+          lBody.innerHTML = data.logs.map(l => `
+            <tr>
+              <td>#${l.id}</td>
+              <td><code style="font-family:'JetBrains Mono'">${l.ticket_id}</code></td>
+              <td>${l.gate_id}</td>
+              <td>
+                <span class="status-badge ${l.status === 'SUCCESS' ? 'active' : 'used'}">${l.status}</span>
+              </td>
+              <td>${l.message}</td>
+              <td><span style="font-size:11px; color:var(--ink-subtle)">${l.created_at}</span></td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error("Lỗi nạp CSDL:", err);
+      }
+    }
+
+    // 5. Interactive AES-256-GCM Encrypt
+    async function runAesEncrypt() {
+      const name = document.getElementById('aesInputName').value.trim();
+      const id = document.getElementById('aesInputId').value.trim();
+      const box = document.getElementById('aesResultBox');
+
+      box.style.display = 'block';
+      box.innerHTML = `<span style="color:var(--primary)">Đang mã hóa trên máy chủ...</span>`;
+
+      try {
+        const res = await fetch("/api/admin/crypto-lab/encrypt?authorization=admin123", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ full_name: name, citizen_id: id })
+        });
+        const d = await res.json();
+
+        box.innerHTML = `
+          <div style="color:var(--success); font-weight:600; margin-bottom:4px;">🔐 MÃ HÓA XÁC THỰC THÀNH CÔNG (AES-256-GCM)</div>
+          <div>• <strong>96-bit Nonce (IV CSPRNG):</strong> <code style="color:var(--primary)">${d.nonce_hex}</code></div>
+          <div>• <strong>128-bit MAC Tag (Auth Tag):</strong> <code style="color:var(--warning)">${d.tag_hex}</code></div>
+          <div>• <strong>Ciphertext (Mã hóa):</strong> <code>${d.ciphertext_hex}</code></div>
+          <div style="margin-top:6px; word-break:break-all;">• <strong>Base64 Token lưu CSDL:</strong> <span style="font-size:10px; color:var(--ink-subtle)">${d.combined_token}</span></div>
+          <div style="margin-top:8px;">
+            <button class="btn btn-secondary" onclick="runAesDecrypt('${d.combined_token}')" style="font-size:11px; height:28px;">
+              🔓 Thử Giải Mã Token Này Ngay
+            </button>
+          </div>
+        `;
+      } catch (err) {
+        box.textContent = "Lỗi mã hóa: " + err.message;
+      }
+    }
+
+    async function runAesDecrypt(token) {
+      const box = document.getElementById('aesResultBox');
+      try {
+        const res = await fetch("/api/admin/crypto-lab/decrypt?authorization=admin123", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ encrypted_token: token })
+        });
+        const d = await res.json();
+        alert(`KẾT QUẢ GIẢI MÃ:\n- Chủ vé: ${d.decrypted_data.full_name}\n- CCCD: ${d.decrypted_data.citizen_id}\n- Trạng thái MAC Tag: ${d.mac_tag_valid ? 'HỢP LỆ (Không bị sửa đổi)' : 'LỖI'}`);
+      } catch (err) {
+        alert("Lỗi giải mã: " + err.message);
       }
     }
 
