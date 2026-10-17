@@ -10,10 +10,8 @@
   <link rel="stylesheet" href="/static/linear-theme.css">
   <style>
     .pass-layout {
-      display: grid;
-      grid-template-columns: 400px 1fr;
-      gap: 40px;
-      align-items: start;
+      max-width: 440px;
+      margin: 0 auto;
     }
 
     .ticket-card {
@@ -141,65 +139,6 @@
       font-weight: 600;
       color: var(--ink);
     }
-
-    .info-card {
-      background: var(--surface-1);
-      border: 1px solid var(--hairline);
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-
-    .info-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .guideline-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 14px;
-      font-size: 13px;
-      line-height: 1.5;
-      color: var(--ink-muted);
-    }
-
-    .guideline-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      background: var(--surface-2);
-      border: 1px solid var(--hairline);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      color: var(--primary);
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-
-    .schedule-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--hairline);
-      font-size: 13px;
-    }
-    .schedule-row:last-child {
-      border-bottom: none;
-    }
-    .schedule-time {
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--primary);
-      font-weight: 600;
-    }
   </style>
 </head>
 <body>
@@ -280,76 +219,6 @@
         </div>
       </div>
 
-      <!-- Real Attendee Guidelines & Event Details -->
-      <div>
-        
-        <div class="info-card">
-          <div class="info-title">
-            <span id="titleCheckinGuide">Hướng Dẫn Check-in Tại Cổng</span>
-          </div>
-
-          <div class="guideline-item">
-            <div class="guideline-icon">1</div>
-            <div>
-              <strong style="color: var(--ink);" id="rule1Title">Mở mã QR trực tiếp trên màn hình:</strong>
-              <div id="rule1Desc" style="color: var(--ink-subtle); margin-top: 2px;">
-                Mã QR xoay tự động sau mỗi 30 giây được ký bằng thuật toán ECDSA P-256 từ máy chủ. Vui lòng mở trực tiếp trang web này khi tới cửa soát vé, không sử dụng ảnh chụp màn hình gửi lại.
-              </div>
-            </div>
-          </div>
-
-          <div class="guideline-item">
-            <div class="guideline-icon">2</div>
-            <div>
-              <strong style="color: var(--ink);" id="rule2Title">Chuẩn bị giấy tờ tùy thân:</strong>
-              <div id="rule2Desc" style="color: var(--ink-subtle); margin-top: 2px;">
-                Nhân viên an ninh tại cổng có thể đối chiếu Căn cước công dân hoặc Thẻ sinh viên khi quét vé đối với hạng vé VIP.
-              </div>
-            </div>
-          </div>
-
-          <div class="guideline-item">
-            <div class="guideline-icon">3</div>
-            <div>
-              <strong style="color: var(--ink);" id="rule3Title">Mỗi vé chỉ sử dụng một lần:</strong>
-              <div id="rule3Desc" style="color: var(--ink-subtle); margin-top: 2px;">
-                Sau khi quét qua cổng thành công, trạng thái vé sẽ lập tức chuyển thành "ĐÃ SỬ DỤNG" trên hệ thống kiểm soát toàn sự kiện.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="info-card">
-          <div class="info-title">
-            <span id="titleSchedule">Lịch Trình Sự Kiện</span>
-          </div>
-
-          <div class="schedule-row">
-            <div>
-              <strong style="color: var(--ink);" id="agenda1">Đón tiếp khách & Check-in qua cổng</strong>
-              <div style="font-size: 11px; color: var(--ink-subtle);">Sảnh chính • Tầng 1</div>
-            </div>
-            <div class="schedule-time">08:00 - 08:30</div>
-          </div>
-
-          <div class="schedule-row">
-            <div>
-              <strong style="color: var(--ink);" id="agenda2">Khai mạc & Phiên tham luận An toàn Mật mã</strong>
-              <div style="font-size: 11px; color: var(--ink-subtle);">Hội trường lớn A</div>
-            </div>
-            <div class="schedule-time">08:30 - 10:15</div>
-          </div>
-
-          <div class="schedule-row">
-            <div>
-              <strong style="color: var(--ink);" id="agenda3">Trình diễn bảo vệ hệ thống trước tấn công mạng</strong>
-              <div style="font-size: 11px; color: var(--ink-subtle);">Khu trải nghiệm kỹ thuật</div>
-            </div>
-            <div class="schedule-time">10:30 - 11:45</div>
-          </div>
-        </div>
-
-      </div>
 
     </div>
   </main>
@@ -376,17 +245,6 @@
         ticketId: "Mã định danh vé",
         statusValid: "HỢP LỆ",
         statusUsed: "ĐÃ SỬ DỤNG",
-        titleCheckinGuide: "Hướng Dẫn Check-in Tại Cổng",
-        rule1Title: "Mở mã QR trực tiếp trên màn hình:",
-        rule1Desc: "Mã QR xoay tự động sau mỗi 30 giây được ký bằng thuật toán ECDSA P-256 từ máy chủ. Vui lòng mở trực tiếp trang web này khi tới cửa soát vé, không sử dụng ảnh chụp màn hình gửi lại.",
-        rule2Title: "Chuẩn bị giấy tờ tùy thân:",
-        rule2Desc: "Nhân viên an ninh tại cổng có thể đối chiếu Căn cước công dân hoặc Thẻ sinh viên khi quét vé đối với hạng vé VIP.",
-        rule3Title: "Mỗi vé chỉ sử dụng một lần:",
-        rule3Desc: "Sau khi quét qua cổng thành công, trạng thái vé sẽ lập tức chuyển thành 'ĐÃ SỬ DỤNG' trên hệ thống kiểm soát toàn sự kiện.",
-        titleSchedule: "Lịch Trình Sự Kiện",
-        agenda1: "Đón tiếp khách & Check-in qua cổng",
-        agenda2: "Khai mạc & Phiên tham luận An toàn Mật mã",
-        agenda3: "Trình diễn bảo vệ hệ thống trước tấn công mạng",
         linkGatekeeper: "🛡️ Cổng Soát Vé Bảo Vệ →",
         linkAdmin: "🔬 Phòng Thí Nghiệm & Quản Trị →"
       },
@@ -400,17 +258,6 @@
         ticketId: "Ticket ID",
         statusValid: "ACTIVE",
         statusUsed: "USED",
-        titleCheckinGuide: "Gate Check-in Guidelines",
-        rule1Title: "Display live QR pass on your screen:",
-        rule1Desc: "Your dynamic QR rotates every 30 seconds signed by server ECDSA P-256. Please present this live webpage at the checkpoint; static screenshots are strictly invalid.",
-        rule2Title: "Keep photo identification ready:",
-        rule2Desc: "Gate security personnel may verify government ID or student credentials for VIP class access.",
-        rule3Title: "Single-entry admission strictly enforced:",
-        rule3Desc: "Once admitted, your pass status transitions permanently to 'USED' across the synchronized event database.",
-        titleSchedule: "Event Schedule",
-        agenda1: "Guest Reception & Fast-track Check-in",
-        agenda2: "Keynote & Applied Cryptography Session",
-        agenda3: "Live Cyber Defense & Anti-Tamper Showcase",
         linkGatekeeper: "🛡️ Gatekeeper Terminal →",
         linkAdmin: "🔬 Admin & Security Lab →"
       }
@@ -425,17 +272,6 @@
       document.getElementById('lblStatus').textContent = t.status;
       document.getElementById('lblGate').textContent = t.gate;
       document.getElementById('lblTicketId').textContent = t.ticketId;
-      document.getElementById('titleCheckinGuide').textContent = t.titleCheckinGuide;
-      document.getElementById('rule1Title').textContent = t.rule1Title;
-      document.getElementById('rule1Desc').textContent = t.rule1Desc;
-      document.getElementById('rule2Title').textContent = t.rule2Title;
-      document.getElementById('rule2Desc').textContent = t.rule2Desc;
-      document.getElementById('rule3Title').textContent = t.rule3Title;
-      document.getElementById('rule3Desc').textContent = t.rule3Desc;
-      document.getElementById('titleSchedule').textContent = t.titleSchedule;
-      document.getElementById('agenda1').textContent = t.agenda1;
-      document.getElementById('agenda2').textContent = t.agenda2;
-      document.getElementById('agenda3').textContent = t.agenda3;
       document.getElementById('linkGatekeeper').textContent = t.linkGatekeeper;
       document.getElementById('linkAdmin').textContent = t.linkAdmin;
       document.getElementById('navGatekeeper').textContent = t.linkGatekeeper.replace(' →', '');
