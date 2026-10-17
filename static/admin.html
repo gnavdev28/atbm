@@ -994,19 +994,31 @@
         if (data.tickets.length === 0) {
           tBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Chưa có bản ghi nào</td></tr>`;
         } else {
-          tBody.innerHTML = data.tickets.map(t => `
-            <tr>
-              <td><strong style="font-family:'JetBrains Mono'">${t.id}</strong></td>
-              <td>${t.owner_decrypted ? t.owner_decrypted.full_name : '—'}</td>
-              <td><code style="font-size:10px; color:var(--ink-subtle)">${t.owner_name_enc.substring(0, 24)}...</code></td>
-              <td><span class="badge-tag">${t.tier}</span></td>
-              <td>
-                <span class="status-badge ${t.status.toLowerCase()}">${t.status === 'ACTIVE' ? 'HỢP LỆ' : 'ĐÃ DÙNG'}</span>
-              </td>
-              <td>${t.gate_id || '—'}</td>
-              <td><span style="font-size:11px; color:var(--ink-subtle)">${t.used_at || 'Chưa check-in'}</span></td>
-            </tr>
-          `).join('');
+          tBody.innerHTML = data.tickets.map(t => {
+            const ownerText = t.owner_decrypted 
+              ? `<div style="font-weight:600; color:var(--ink);">${t.owner_decrypted.full_name}</div><div style="font-size:10px; color:var(--ink-subtle);">CCCD: ${t.owner_decrypted.citizen_id}</div>` 
+              : `<span style="color:var(--ink-subtle);">${t.owner_name_enc.startsWith('ENC_') ? 'Vé Test Đua Tranh' : '—'}</span>`;
+            
+            const cipherShort = t.owner_name_enc.length > 20 ? t.owner_name_enc.substring(0, 18) + '...' : t.owner_name_enc;
+
+            return `
+              <tr>
+                <td><strong style="font-family:'JetBrains Mono'">${t.id}</strong></td>
+                <td>${ownerText}</td>
+                <td>
+                  <code style="font-size:10px; color:var(--primary); cursor:pointer;" title="Bấm để sao chép Ciphertext Token: ${t.owner_name_enc}" onclick="navigator.clipboard.writeText('${t.owner_name_enc}'); alert('Đã sao chép chuỗi mã hóa Ciphertext!');">
+                    ${cipherShort} 📋
+                  </code>
+                </td>
+                <td><span class="badge-tag">${t.tier}</span></td>
+                <td>
+                  <span class="status-badge ${t.status.toLowerCase()}">${t.status === 'ACTIVE' ? 'HỢP LỆ' : 'ĐÃ DÙNG'}</span>
+                </td>
+                <td>${t.gate_id || '—'}</td>
+                <td><span style="font-size:11px; color:var(--ink-subtle)">${t.used_at || 'Chưa check-in'}</span></td>
+              </tr>
+            `;
+          }).join('');
         }
 
         // Render logs

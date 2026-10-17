@@ -52,7 +52,10 @@ def get_system_keys(authorization: str = "admin123"):
 def get_database_records(authorization: str = "admin123"):
     """Truy vấn trực tiếp CSDL SQLite: danh sách vé và nhật ký check-in thời gian thực"""
     verify_admin_auth(authorization)
-    tickets = app_state.db.list_tickets(10)
+    tickets = app_state.db.list_tickets(15)
+    default_t = app_state.db.get_ticket(app_state.default_ticket_id)
+    if default_t and not any(t["id"] == app_state.default_ticket_id for t in tickets):
+        tickets.insert(0, default_t)
     for t in tickets:
         try:
             t["owner_decrypted"] = app_state.crypto.decrypt_data(t["owner_name_enc"], app_state.aes_key)
@@ -166,7 +169,11 @@ def test_concurrency_attack(req: Optional[ConcurrencyAttackRequest] = None, auth
     count = max(2, min(50, count))
 
     concurrency_ticket_id = f"TK-FLOOD-{int(time.time()*1000)}"
-    app_state.db.create_ticket(concurrency_ticket_id, "ENC_NAME_FLOOD", "VIP PASS")
+    flood_owner_enc = app_state.crypto.encrypt_data({
+        "full_name": f"Khách Đua Tranh #{str(int(time.time()*1000))[-4:]}",
+        "citizen_id": "038202008899"
+    }, app_state.aes_key)
+    app_state.db.create_ticket(concurrency_ticket_id, flood_owner_enc, "VIP PASS")
 
     results = []
     threads = []
