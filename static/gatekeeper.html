@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soát Vé Cổng - Gatekeeper Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/linear-theme.css">
+  <style>
+    .terminal-container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .camera-hud {
+      background: var(--surface-2);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      height: 320px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .viewfinder {
+      width: 180px;
+      height: 180px;
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .laser-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+      animation: laserSweep 2s infinite ease-in-out;
+    }
+
+    @keyframes laserSweep {
+      0% { top: 0; }
+      50% { top: 100%; }
+      100% { top: 0; }
+    }
+
+    .scan-feedback {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-top: 16px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+
+    .scan-feedback.valid {
+      background: var(--success-subtle);
+      border-color: rgba(39, 166, 68, 0.3);
+      color: var(--success);
+    }
+
+    .scan-feedback.invalid {
+      background: var(--danger-subtle);
+      border-color: rgba(235, 87, 87, 0.3);
+      color: var(--danger);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-section">
+      <div class="brand-logo">G</div>
+      <a href="/gatekeeper" class="brand-name">
+        <span>Gatekeeper</span>
+        <span class="badge-tag" id="tagStaff">Nhân Viên Soát Vé</span>
+      </a>
+    </div>
+
+    <div class="utility-controls">
+      <button class="lang-btn" onclick="toggleLanguage()" title="Chuyển ngôn ngữ / Switch Language">
+        <span id="langIndicator">EN</span>
+      </button>
+      <button class="icon-btn" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối">
+        <span id="themeIcon">☀️</span>
+      </button>
+      <button class="btn btn-secondary" style="height: 32px; font-size: 11px;" onclick="logoutStaff()" id="btnLogout" style="display: none;">
+        Đăng Xuất
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- 1. Staff Login Form -->
+    <div id="authSection" class="auth-box">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="font-size: 32px; margin-bottom: 8px;">🛡️</div>
+        <h2 style="font-size: 16px; font-weight: 600; color: var(--ink);" id="titleLogin">Đăng Nhập Ca Trực</h2>
+        <p style="font-size: 12px; color: var(--ink-subtle); margin-top: 4px;" id="descLogin">
+          Dành riêng cho nhân viên an ninh cửa soát vé
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label id="lblPin">Mã PIN Nhân Viên (Thử: 1234)</label>
+        <input type="password" id="inputPin" class="form-control" placeholder="••••" maxlength="6" value="1234">
+      </div>
+
+      <button class="btn btn-primary" style="width: 100%; margin-top: 8px;" onclick="loginStaff()">
+        <span id="btnLogin">Xác Nhận Vào Ca</span>
+      </button>
+    </div>
+
+    <!-- 2. Scanner HUD -->
+    <div id="scannerSection" class="terminal-container" style="display: none;">
+      
+      <div style="margin-bottom: 20px;">
+        <h1 style="font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 4px;" id="titleTerminal">
+          Máy Quét Cổng 1A (Terminal 1A)
+        </h1>
+        <p style="font-size: 13px; color: var(--ink-subtle);" id="descTerminal">
+          Kết nối trực tiếp API Backend FastAPI. Xác minh chữ ký số ECDSA P-256 thời gian thực.
+        </p>
+      </div>
+
+      <div class="camera-hud">
+        <div class="viewfinder">
+          <div class="laser-line"></div>
+          <span style="font-size: 32px; opacity: 0.3;">📷</span>
+        </div>
+        <div style="position: absolute; bottom: 16px; font-size: 12px; color: var(--ink-subtle); font-family: 'JetBrains Mono', monospace;" id="txtCameraReady">
+          MÁY QUÉT KẾT NỐI SERVER THÀNH CÔNG
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+        <button class="btn btn-primary" style="flex: 1;" onclick="scanAttendeePass()">
+          <span id="btnScanPass">✅ Quét mã QR của khách</span>
+        </button>
+        <button class="btn btn-danger" onclick="scanTamperedPass()">
+          <span id="btnScanTampered">⚠️ Thử quét mã bị sửa lậu</span>
+        </button>
+      </div>
+
+      <div id="scanFeedback" class="scan-feedback">
+        <div id="feedbackIcon" style="font-size: 20px;">✓</div>
+        <div>
+          <div id="feedbackTitle" style="font-weight: 600;">CHECK-IN THÀNH CÔNG</div>
+          <div id="feedbackSubtitle" style="font-size: 12px; opacity: 0.85;">Chữ ký số hợp lệ - Mời khách vào cửa</div>
+        </div>
+      </div>
+
+      <div class="card-panel" style="margin-top: 20px;">
+        <div class="card-panel-title">
+          <span id="titleAuditLog">Nhật ký phản hồi từ Server Python (Audit Logs)</span>
+        </div>
+        <div class="code-snippet" id="auditLogs">Sẵn sàng nhận diện mã...</div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <div>© 2026 SecurePass • Gatekeeper Terminal Mode</div>
+    <div style="display: flex; gap: 20px;">
+      <a href="/" id="linkBackAttendee">← Về Cổng Khách Hàng</a>
+      <a href="/admin" id="linkAdmin">Quản Trị Hệ Thống →</a>
+    </div>
+  </footer>
+
+  <script>
+    let currentLang = 'vi';
+
+    const i18n = {
+      vi: {
+        tagStaff: "Nhân Viên Soát Vé",
+        titleLogin: "Đăng Nhập Ca Trực",
+        descLogin: "Dành riêng cho nhân viên an ninh cửa soát vé",
+        lblPin: "Mã PIN Nhân Viên (Thử: 1234)",
+        btnLogin: "Xác Nhận Vào Ca",
+        titleTerminal: "Máy Quét Cổng 1A (Terminal 1A)",
+        descTerminal: "Kết nối trực tiếp API Backend FastAPI. Xác minh chữ ký số ECDSA P-256 thời gian thực.",
+        txtCameraReady: "MÁY QUÉT KẾT NỐI SERVER THÀNH CÔNG",
+        btnScanPass: "✅ Quét mã QR của khách",
+        btnScanTampered: "⚠️ Thử quét mã bị sửa lậu",
+        titleAuditLog: "Nhật ký phản hồi từ Server Python (Audit Logs)",
+        linkBackAttendee: "← Về Cổng Khách Hàng",
+        linkAdmin: "Quản Trị Hệ Thống →",
+        btnLogout: "Đăng Xuất"
+      },
+      en: {
+        tagStaff: "Gate Staff",
+        titleLogin: "Staff Authentication",
+        descLogin: "Authorized security personnel only",
+        lblPin: "Staff PIN Code (Default: 1234)",
+        btnLogin: "Sign In to Terminal",
+        titleTerminal: "Gate 1A Scanner Terminal",
+        descTerminal: "Live connection to FastAPI backend. Real-time ECDSA P-256 verification.",
+        txtCameraReady: "SERVER CONNECTION ACTIVE",
+        btnScanPass: "✅ Scan Incoming QR Pass",
+        btnScanTampered: "⚠️ Scan Tampered Pass",
+        titleAuditLog: "Server Response Audit Logs",
+        linkBackAttendee: "← Attendee Portal",
+        linkAdmin: "Admin Console →",
+        btnLogout: "Log Out"
+      }
+    };
+
+    function applyI18n() {
+      const t = i18n[currentLang];
+      document.getElementById('tagStaff').textContent = t.tagStaff;
+      document.getElementById('titleLogin').textContent = t.titleLogin;
+      document.getElementById('descLogin').textContent = t.descLogin;
+      document.getElementById('lblPin').textContent = t.lblPin;
+      document.getElementById('btnLogin').textContent = t.btnLogin;
+      document.getElementById('titleTerminal').textContent = t.titleTerminal;
+      document.getElementById('descTerminal').textContent = t.descTerminal;
+      document.getElementById('txtCameraReady').textContent = t.txtCameraReady;
+      document.getElementById('btnScanPass').textContent = t.btnScanPass;
+      document.getElementById('btnScanTampered').textContent = t.btnScanTampered;
+      document.getElementById('titleAuditLog').textContent = t.titleAuditLog;
+      document.getElementById('linkBackAttendee').textContent = t.linkBackAttendee;
+      document.getElementById('linkAdmin').textContent = t.linkAdmin;
+      document.getElementById('btnLogout').textContent = t.btnLogout;
+      document.getElementById('langIndicator').textContent = currentLang === 'vi' ? 'EN' : 'VI';
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'vi' ? 'en' : 'vi';
+      applyI18n();
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const current = root.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      document.getElementById('themeIcon').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
+    function loginStaff() {
+      const pin = document.getElementById('inputPin').value;
+      if (pin === '1234') {
+        sessionStorage.setItem('staff_auth', 'true');
+        checkAuth();
+      } else {
+        alert(currentLang === 'vi' ? 'Mã PIN sai! Vui lòng nhập 1234' : 'Incorrect PIN! Please enter 1234');
+      }
+    }
+
+    function logoutStaff() {
+      sessionStorage.removeItem('staff_auth');
+      checkAuth();
+    }
+
+    function checkAuth() {
+      const isAuth = sessionStorage.getItem('staff_auth') === 'true';
+      document.getElementById('authSection').style.display = isAuth ? 'none' : 'block';
+      document.getElementById('scannerSection').style.display = isAuth ? 'block' : 'none';
+      document.getElementById('btnLogout').style.display = isAuth ? 'inline-flex' : 'none';
+    }
+
+    // Call Real FastAPI /api/checkin
+    async function scanAttendeePass() {
+      let payload = null;
+      try {
+        // Fetch fresh QR payload from server
+        const res = await fetch("/api/tickets/TK-98A4-2026/qr");
+        const data = await res.json();
+        payload = data.qr_payload;
+      } catch (err) {
+        console.error("Lỗi lấy mã QR:", err);
+      }
+
+      if (!payload) {
+        alert("Không thể tải mã vé từ máy chủ!");
+        return;
+      }
+
+      await sendCheckinRequest(payload);
+    }
+
+    async function scanTamperedPass() {
+      const res = await fetch("/api/tickets/TK-98A4-2026/qr");
+      const data = await res.json();
+      const tampered = { ...data.qr_payload, tier: "SUPER_VIP_HACKED" };
+      await sendCheckinRequest(tampered);
+    }
+
+    async function sendCheckinRequest(payload) {
+      const banner = document.getElementById('scanFeedback');
+      const title = document.getElementById('feedbackTitle');
+      const sub = document.getElementById('feedbackSubtitle');
+      const icon = document.getElementById('feedbackIcon');
+      const logEl = document.getElementById('auditLogs');
+
+      banner.style.display = 'flex';
+      let logs = `[${new Date().toLocaleTimeString()}] GỬI GÓI TIN ĐẾN FASTAPI BACKEND:\n`;
+      logs += `POST /api/checkin -> Ticket ID: ${payload.tid}\n\n`;
+
+      try {
+        const res = await fetch("/api/checkin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tid: payload.tid,
+            tier: payload.tier,
+            ts: payload.ts,
+            nonce: payload.nonce,
+            enc: payload.enc,
+            sig: payload.sig,
+            gate_id: "GATE-1A",
+            staff_pin: "1234"
+          })
+        });
+
+        const result = await res.json();
+        logs += JSON.stringify(result, null, 2);
+        logEl.textContent = logs;
+
+        if (res.ok && result.success) {
+          banner.className = 'scan-feedback valid';
+          icon.textContent = '✓';
+          title.textContent = currentLang === 'vi' ? 'CHECK-IN THÀNH CÔNG' : 'CHECK-IN APPROVED';
+          sub.textContent = `${result.owner ? result.owner.full_name : 'Khách'} (${result.tier}) - ${result.gate_id}`;
+        } else {
+          banner.className = 'scan-feedback invalid';
+          icon.textContent = result.error_code === 'FORGERY_DETECTED' ? '🚨' : '⚠️';
+          title.textContent = currentLang === 'vi' ? 'TỪ CHỐI CHECK-IN' : 'CHECK-IN REJECTED';
+          sub.textContent = result.message || "Không thể xác minh vé.";
+        }
+      } catch (err) {
+        logs += `Lỗi kết nối: ${err.message}`;
+        logEl.textContent = logs;
+      }
+    }
+
+    window.onload = function() {
+      applyI18n();
+      checkAuth();
+    };
+  </script>
+</body>
+</html>

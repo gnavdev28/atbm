@@ -1,0 +1,320 @@
+/* ==========================================================================
+   Linear Design System Tokens & Shared Styles (from DESIGN.md)
+   ========================================================================== */
+:root[data-theme="dark"] {
+  --canvas: #010102;
+  --surface-1: #0f1011;
+  --surface-2: #141516;
+  --surface-3: #18191a;
+  --surface-4: #191a1b;
+  --hairline: #23252a;
+  --hairline-strong: #34343a;
+  --hairline-focus: #5e69d1;
+  --ink: #f7f8f8;
+  --ink-muted: #d0d6e0;
+  --ink-subtle: #8a8f98;
+  --ink-tertiary: #62666d;
+  --primary: #5e6ad2;
+  --primary-hover: #828fff;
+  --primary-subtle: rgba(94, 106, 210, 0.12);
+  --success: #27a644;
+  --success-subtle: rgba(39, 166, 68, 0.12);
+  --danger: #eb5757;
+  --danger-subtle: rgba(235, 87, 87, 0.12);
+  --warning: #f2994a;
+  --warning-subtle: rgba(242, 153, 74, 0.12);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.5), 0 20px 40px -15px rgba(0,0,0,0.7);
+}
+
+:root[data-theme="light"] {
+  --canvas: #ffffff;
+  --surface-1: #f8f9fa;
+  --surface-2: #f1f3f5;
+  --surface-3: #e9ecef;
+  --surface-4: #dee2e6;
+  --hairline: #e2e4e8;
+  --hairline-strong: #cbd0d6;
+  --hairline-focus: #5e6ad2;
+  --ink: #0d0f12;
+  --ink-muted: #343a40;
+  --ink-subtle: #6c757d;
+  --ink-tertiary: #adb5bd;
+  --primary: #5e6ad2;
+  --primary-hover: #4b55b8;
+  --primary-subtle: rgba(94, 106, 210, 0.08);
+  --success: #218838;
+  --success-subtle: rgba(33, 136, 56, 0.1);
+  --danger: #d93838;
+  --danger-subtle: rgba(217, 56, 56, 0.1);
+  --warning: #d97706;
+  --warning-subtle: rgba(217, 119, 6, 0.1);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 15px 30px -10px rgba(0,0,0,0.06);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  letter-spacing: -0.015em;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+header {
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--hairline);
+  height: 56px;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  width: 24px;
+  height: 24px;
+  background: var(--primary);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.brand-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.badge-tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  color: var(--ink-subtle);
+}
+
+.utility-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  color: var(--ink-subtle);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.icon-btn:hover {
+  color: var(--ink);
+  border-color: var(--hairline-strong);
+}
+
+.lang-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.lang-btn:hover {
+  border-color: var(--hairline-strong);
+}
+
+main {
+  flex: 1;
+  max-width: 1040px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  outline: none;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--ink);
+  border-color: var(--hairline);
+}
+.btn-secondary:hover {
+  background: var(--surface-3);
+  border-color: var(--hairline-strong);
+}
+
+.btn-danger {
+  background: var(--danger-subtle);
+  color: var(--danger);
+  border-color: rgba(235, 87, 87, 0.3);
+}
+.btn-danger:hover {
+  background: rgba(235, 87, 87, 0.2);
+}
+
+.card-panel {
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.card-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.card-panel-desc {
+  font-size: 13px;
+  color: var(--ink-subtle);
+  line-height: 1.6;
+}
+
+.code-snippet {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 12px;
+  color: var(--ink-muted);
+  overflow-x: auto;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Auth Login Modal / Overlay */
+.auth-box {
+  max-width: 360px;
+  width: 100%;
+  margin: 60px auto;
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 32px 28px;
+  box-shadow: var(--shadow-card);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-subtle);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  height: 38px;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  color: var(--ink);
+  padding: 0 12px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.form-control:focus {
+  border-color: var(--hairline-focus);
+}
+
+footer {
+  border-top: 1px solid var(--hairline);
+  padding: 24px 20px;
+  background: var(--surface-1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--ink-tertiary);
+}
+
+footer a {
+  color: var(--ink-subtle);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+footer a:hover {
+  color: var(--ink);
+}

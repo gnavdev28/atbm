@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vé Sự Kiện - SecurePass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/linear-theme.css">
+  <style>
+    .pass-layout {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .ticket-card {
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+
+    .ticket-head {
+      padding: 24px;
+      border-bottom: 1px dashed var(--hairline-strong);
+      background: var(--surface-2);
+      position: relative;
+    }
+
+    .ticket-head::before, .ticket-head::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      width: 20px;
+      height: 20px;
+      background: var(--canvas);
+      border-radius: 50%;
+    }
+    .ticket-head::before { left: -10px; }
+    .ticket-head::after { right: -10px; }
+
+    .ticket-tier {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      border: 1px solid rgba(94, 106, 210, 0.25);
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .ticket-event {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .ticket-time {
+      font-size: 13px;
+      color: var(--ink-subtle);
+    }
+
+    .ticket-body {
+      padding: 32px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--surface-1);
+    }
+
+    .qr-frame {
+      background: #FFFFFF;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--hairline);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      margin-bottom: 24px;
+    }
+
+    .countdown-widget {
+      width: 100%;
+      margin-bottom: 24px;
+    }
+
+    .countdown-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--ink-subtle);
+      margin-bottom: 6px;
+    }
+
+    .countdown-track {
+      height: 4px;
+      background: var(--surface-3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .countdown-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 100%;
+      transition: width 1s linear, background-color 0.2s ease;
+    }
+
+    .ticket-meta-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 18px 24px;
+      border-top: 1px solid var(--hairline);
+      background: var(--surface-2);
+    }
+
+    .meta-box label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: var(--ink-subtle);
+      margin-bottom: 4px;
+    }
+
+    .meta-box strong {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .info-card {
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .info-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .guideline-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--ink-muted);
+    }
+
+    .guideline-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--surface-2);
+      border: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--primary);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .schedule-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--hairline);
+      font-size: 13px;
+    }
+    .schedule-row:last-child {
+      border-bottom: none;
+    }
+    .schedule-time {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-section">
+      <div class="brand-logo">Q</div>
+      <a href="/" class="brand-name">
+        <span>SecurePass</span>
+        <span class="badge-tag" id="tagPortal">Cổng Vé Người Tham Dự</span>
+      </a>
+    </div>
+
+    <div class="utility-controls">
+      <button class="lang-btn" onclick="toggleLanguage()" title="Chuyển ngôn ngữ / Switch Language">
+        <span id="langIndicator">EN</span>
+      </button>
+      <button class="icon-btn" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối">
+        <span id="themeIcon">☀️</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="pass-layout">
+      
+      <!-- Ticket Pass Card -->
+      <div class="ticket-card">
+        <div class="ticket-head">
+          <span class="ticket-tier">VIP PASS</span>
+          <h1 class="ticket-event">ATBMTT Cyber Security Summit 2026</h1>
+          <div class="ticket-time" id="txtVenue">Trung tâm Hội nghị Quốc gia • Hà Nội</div>
+        </div>
+
+        <div class="ticket-body">
+          <div class="qr-frame">
+            <canvas id="qrCanvas" width="180" height="180"></canvas>
+          </div>
+
+          <div class="countdown-widget">
+            <div class="countdown-meta">
+              <span id="lblRotating">MÃ QR TỰ LÀM MỚI SAU</span>
+              <span id="countdownTimer">30s</span>
+            </div>
+            <div class="countdown-track">
+              <div id="countdownBar" class="countdown-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-meta-grid">
+          <div class="meta-box">
+            <label id="lblOwner">Chủ vé</label>
+            <strong id="ticketOwner">Nguyễn Văn An</strong>
+          </div>
+          <div class="meta-box">
+            <label id="lblStatus">Trạng thái</label>
+            <strong id="ticketStatus" style="color: var(--success);">HỢP LỆ</strong>
+          </div>
+          <div class="meta-box">
+            <label id="lblGate">Cổng check-in</label>
+            <strong style="font-family: 'JetBrains Mono', monospace; font-size: 13px;">GATE 1A</strong>
+          </div>
+          <div class="meta-box">
+            <label id="lblTicketId">Mã định danh vé</label>
+            <strong id="ticketIdDisplay" style="font-family: 'JetBrains Mono', monospace; font-size: 13px;">TK-98A4-2026</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real Attendee Guidelines & Event Details -->
+      <div>
+        
+        <div class="info-card">
+          <div class="info-title">
+            <span id="titleCheckinGuide">Hướng Dẫn Check-in Tại Cổng</span>
+          </div>
+
+          <div class="guideline-item">
+            <div class="guideline-icon">1</div>
+            <div>
+              <strong style="color: var(--ink);" id="rule1Title">Mở mã QR trực tiếp trên màn hình:</strong>
+              <div id="rule1Desc" style="color: var(--ink-subtle); margin-top: 2px;">
+                Mã QR xoay tự động sau mỗi 30 giây được ký bằng thuật toán ECDSA P-256 từ máy chủ. Vui lòng mở trực tiếp trang web này khi tới cửa soát vé, không sử dụng ảnh chụp màn hình gửi lại.
+              </div>
+            </div>
+          </div>
+
+          <div class="guideline-item">
+            <div class="guideline-icon">2</div>
+            <div>
+              <strong style="color: var(--ink);" id="rule2Title">Chuẩn bị giấy tờ tùy thân:</strong>
+              <div id="rule2Desc" style="color: var(--ink-subtle); margin-top: 2px;">
+                Nhân viên an ninh tại cổng có thể đối chiếu Căn cước công dân hoặc Thẻ sinh viên khi quét vé đối với hạng vé VIP.
+              </div>
+            </div>
+          </div>
+
+          <div class="guideline-item">
+            <div class="guideline-icon">3</div>
+            <div>
+              <strong style="color: var(--ink);" id="rule3Title">Mỗi vé chỉ sử dụng một lần:</strong>
+              <div id="rule3Desc" style="color: var(--ink-subtle); margin-top: 2px;">
+                Sau khi quét qua cổng thành công, trạng thái vé sẽ lập tức chuyển thành "ĐÃ SỬ DỤNG" trên hệ thống kiểm soát toàn sự kiện.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-title">
+            <span id="titleSchedule">Lịch Trình Sự Kiện</span>
+          </div>
+
+          <div class="schedule-row">
+            <div>
+              <strong style="color: var(--ink);" id="agenda1">Đón tiếp khách & Check-in qua cổng</strong>
+              <div style="font-size: 11px; color: var(--ink-subtle);">Sảnh chính • Tầng 1</div>
+            </div>
+            <div class="schedule-time">08:00 - 08:30</div>
+          </div>
+
+          <div class="schedule-row">
+            <div>
+              <strong style="color: var(--ink);" id="agenda2">Khai mạc & Phiên tham luận An toàn Mật mã</strong>
+              <div style="font-size: 11px; color: var(--ink-subtle);">Hội trường lớn A</div>
+            </div>
+            <div class="schedule-time">08:30 - 10:15</div>
+          </div>
+
+          <div class="schedule-row">
+            <div>
+              <strong style="color: var(--ink);" id="agenda3">Trình diễn bảo vệ hệ thống trước tấn công mạng</strong>
+              <div style="font-size: 11px; color: var(--ink-subtle);">Khu trải nghiệm kỹ thuật</div>
+            </div>
+            <div class="schedule-time">10:30 - 11:45</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div>© 2026 SecurePass • An Toàn & Bảo Mật Thông Tin</div>
+    <div style="display: flex; gap: 20px;">
+      <a href="/gatekeeper" id="linkGatekeeper">🛡️ Cổng Soát Vé Bảo Vệ →</a>
+      <a href="/admin" id="linkAdmin">🔬 Phòng Thí Nghiệm & Quản Trị →</a>
+    </div>
+  </footer>
+
+  <script>
+    let currentLang = 'vi';
+
+    const i18n = {
+      vi: {
+        tagPortal: "Cổng Vé Người Tham Dự",
+        venue: "Trung tâm Hội nghị Quốc gia • Hà Nội",
+        rotating: "MÃ QR TỰ LÀM MỚI SAU",
+        owner: "Chủ vé",
+        status: "Trạng thái",
+        gate: "Cổng check-in",
+        ticketId: "Mã định danh vé",
+        statusValid: "HỢP LỆ",
+        statusUsed: "ĐÃ SỬ DỤNG",
+        titleCheckinGuide: "Hướng Dẫn Check-in Tại Cổng",
+        rule1Title: "Mở mã QR trực tiếp trên màn hình:",
+        rule1Desc: "Mã QR xoay tự động sau mỗi 30 giây được ký bằng thuật toán ECDSA P-256 từ máy chủ. Vui lòng mở trực tiếp trang web này khi tới cửa soát vé, không sử dụng ảnh chụp màn hình gửi lại.",
+        rule2Title: "Chuẩn bị giấy tờ tùy thân:",
+        rule2Desc: "Nhân viên an ninh tại cổng có thể đối chiếu Căn cước công dân hoặc Thẻ sinh viên khi quét vé đối với hạng vé VIP.",
+        rule3Title: "Mỗi vé chỉ sử dụng một lần:",
+        rule3Desc: "Sau khi quét qua cổng thành công, trạng thái vé sẽ lập tức chuyển thành 'ĐÃ SỬ DỤNG' trên hệ thống kiểm soát toàn sự kiện.",
+        titleSchedule: "Lịch Trình Sự Kiện",
+        agenda1: "Đón tiếp khách & Check-in qua cổng",
+        agenda2: "Khai mạc & Phiên tham luận An toàn Mật mã",
+        agenda3: "Trình diễn bảo vệ hệ thống trước tấn công mạng",
+        linkGatekeeper: "🛡️ Cổng Soát Vé Bảo Vệ →",
+        linkAdmin: "🔬 Phòng Thí Nghiệm & Quản Trị →"
+      },
+      en: {
+        tagPortal: "Attendee Ticket Portal",
+        venue: "National Convention Center • Hanoi",
+        rotating: "QR CODE REFRESHING IN",
+        owner: "Attendee",
+        status: "Status",
+        gate: "Assigned Gate",
+        ticketId: "Ticket ID",
+        statusValid: "ACTIVE",
+        statusUsed: "USED",
+        titleCheckinGuide: "Gate Check-in Guidelines",
+        rule1Title: "Display live QR pass on your screen:",
+        rule1Desc: "Your dynamic QR rotates every 30 seconds signed by server ECDSA P-256. Please present this live webpage at the checkpoint; static screenshots are strictly invalid.",
+        rule2Title: "Keep photo identification ready:",
+        rule2Desc: "Gate security personnel may verify government ID or student credentials for VIP class access.",
+        rule3Title: "Single-entry admission strictly enforced:",
+        rule3Desc: "Once admitted, your pass status transitions permanently to 'USED' across the synchronized event database.",
+        titleSchedule: "Event Schedule",
+        agenda1: "Guest Reception & Fast-track Check-in",
+        agenda2: "Keynote & Applied Cryptography Session",
+        agenda3: "Live Cyber Defense & Anti-Tamper Showcase",
+        linkGatekeeper: "🛡️ Gatekeeper Terminal →",
+        linkAdmin: "🔬 Admin & Security Lab →"
+      }
+    };
+
+    function applyI18n() {
+      const t = i18n[currentLang];
+      document.getElementById('tagPortal').textContent = t.tagPortal;
+      document.getElementById('txtVenue').textContent = t.venue;
+      document.getElementById('lblRotating').textContent = t.rotating;
+      document.getElementById('lblOwner').textContent = t.owner;
+      document.getElementById('lblStatus').textContent = t.status;
+      document.getElementById('lblGate').textContent = t.gate;
+      document.getElementById('lblTicketId').textContent = t.ticketId;
+      document.getElementById('titleCheckinGuide').textContent = t.titleCheckinGuide;
+      document.getElementById('rule1Title').textContent = t.rule1Title;
+      document.getElementById('rule1Desc').textContent = t.rule1Desc;
+      document.getElementById('rule2Title').textContent = t.rule2Title;
+      document.getElementById('rule2Desc').textContent = t.rule2Desc;
+      document.getElementById('rule3Title').textContent = t.rule3Title;
+      document.getElementById('rule3Desc').textContent = t.rule3Desc;
+      document.getElementById('titleSchedule').textContent = t.titleSchedule;
+      document.getElementById('agenda1').textContent = t.agenda1;
+      document.getElementById('agenda2').textContent = t.agenda2;
+      document.getElementById('agenda3').textContent = t.agenda3;
+      document.getElementById('linkGatekeeper').textContent = t.linkGatekeeper;
+      document.getElementById('linkAdmin').textContent = t.linkAdmin;
+      document.getElementById('langIndicator').textContent = currentLang === 'vi' ? 'EN' : 'VI';
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'vi' ? 'en' : 'vi';
+      applyI18n();
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const current = root.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      document.getElementById('themeIcon').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
+    let countdown = 30;
+    let timerHandle = null;
+    const ticketId = "TK-98A4-2026";
+
+    function drawLinearQR(canvas, seed) {
+      const ctx = canvas.getContext('2d');
+      const size = 180;
+      const cells = 21;
+      const cellSize = size / cells;
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, size, size);
+      ctx.fillStyle = '#090A0F';
+
+      function drawCorner(x, y) {
+        ctx.fillRect(x * cellSize, y * cellSize, 7 * cellSize, 7 * cellSize);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect((x + 1) * cellSize, (y + 1) * cellSize, 5 * cellSize, 5 * cellSize);
+        ctx.fillStyle = '#090A0F';
+        ctx.fillRect((x + 2) * cellSize, (y + 2) * cellSize, 3 * cellSize, 3 * cellSize);
+      }
+
+      drawCorner(0, 0);
+      drawCorner(14, 0);
+      drawCorner(0, 14);
+
+      let hash = 0;
+      for (let i = 0; i < seed.length; i++) {
+        hash = (hash << 5) - hash + seed.charCodeAt(i);
+        hash |= 0;
+      }
+
+      for (let r = 0; r < cells; r++) {
+        for (let c = 0; c < cells; c++) {
+          if ((r < 8 && c < 8) || (r < 8 && c > 13) || (r > 13 && c < 8)) continue;
+          hash = (hash * 9301 + 49297) % 233280;
+          if (hash / 233280 > 0.48) {
+            ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+    }
+
+    async function fetchLiveQR() {
+      try {
+        const res = await fetch(`/api/tickets/${ticketId}/qr`);
+        if (res.ok) {
+          const data = await res.json();
+          const payload = data.qr_payload;
+          
+          // Draw real cryptographic payload into canvas
+          const canvas = document.getElementById('qrCanvas');
+          drawLinearQR(canvas, JSON.stringify(payload));
+
+          // Save payload for gatekeeper testing
+          localStorage.setItem('server_live_payload', JSON.stringify(payload));
+
+          // Update status
+          const t = i18n[currentLang];
+          const stEl = document.getElementById('ticketStatus');
+          if (data.status === 'ACTIVE') {
+            stEl.textContent = t.statusValid;
+            stEl.style.color = 'var(--success)';
+          } else {
+            stEl.textContent = t.statusUsed;
+            stEl.style.color = 'var(--danger)';
+          }
+        }
+      } catch (err) {
+        console.error("Không thể kết nối máy chủ API:", err);
+      }
+    }
+
+    function startCountdown() {
+      if (timerHandle) clearInterval(timerHandle);
+      countdown = 30;
+      fetchLiveQR();
+
+      timerHandle = setInterval(() => {
+        countdown--;
+        if (countdown <= 0) {
+          countdown = 30;
+          fetchLiveQR();
+        }
+        document.getElementById('countdownTimer').textContent = countdown + 's';
+        const pct = (countdown / 30) * 100;
+        const bar = document.getElementById('countdownBar');
+        bar.style.width = pct + '%';
+        if (countdown <= 5) {
+          bar.style.backgroundColor = 'var(--danger)';
+        } else if (countdown <= 12) {
+          bar.style.backgroundColor = 'var(--warning)';
+        } else {
+          bar.style.backgroundColor = 'var(--primary)';
+        }
+      }, 1000);
+    }
+
+    window.onload = function() {
+      applyI18n();
+      startCountdown();
+    };
+  </script>
+</body>
+</html>
