@@ -16,27 +16,6 @@
       gap: 20px;
     }
 
-    .video-guide-banner {
-      background: rgba(99, 102, 241, 0.08);
-      border: 1px solid rgba(99, 102, 241, 0.25);
-      border-radius: 8px;
-      padding: 14px 16px;
-      margin-bottom: 20px;
-    }
-    .video-guide-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 12px;
-      margin-top: 10px;
-    }
-    .guide-step-card {
-      background: var(--surface-1);
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid var(--hairline);
-      font-size: 12px;
-      line-height: 1.5;
-    }
     .threads-cluster {
       display: flex;
       flex-wrap: wrap;
@@ -367,41 +346,15 @@
         </button>
       </div>
 
-      <!-- TAB 1: ATTACK SIMULATIONS & LIVE EXPLOIT WORKSHOP -->
+      <!-- TAB 1: ATTACK SIMULATIONS -->
       <div id="tabAttacks" class="tab-content active">
-
-        <!-- Master Video Demo Guide Banner -->
-        <div class="video-guide-banner">
-          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #818cf8; font-size: 13px;">
-              <span>🎬 KỊCH BẢN QUAY VIDEO DEMO THỰC TẾ (100% THUYẾT PHỤC - KHÔNG LO BỊ BẢO MÔ PHỎNG CỨNG)</span>
-            </div>
-            <span style="font-size: 11px; color: var(--ink-subtle);">Mở song song 2 tab: Cổng Soát Vé (/gatekeeper) & Phòng Lab (/admin)</span>
-          </div>
-
-          <div class="video-guide-grid">
-            <div class="guide-step-card">
-              <div style="font-weight: 600; color: var(--danger); margin-bottom: 4px;">1. Bắt quả tang mã vé bị làm giả</div>
-              Tại Thẻ 1 bên dưới, chỉnh hạng vé tùy ý rồi bấm <strong>"🛠️ Tạo Mã QR Giả Mạo"</strong>. Bấm tải ảnh QR về máy, mang sang tab <code>/gatekeeper</code> tải ảnh lên. Cổng quét ảnh thật và hú còi báo động đỏ rực vì sai chữ ký ECDSA!
-            </div>
-            <div class="guide-step-card">
-              <div style="font-weight: 600; color: var(--warning); margin-bottom: 4px;">2. Bắt quả tang gian lận vé cũ (Replay)</div>
-              Tại Cổng Soát Vé <code>/gatekeeper</code>, quét mã QR hợp lệ lần 1 (Xanh - Thành công). Ngay lập tức quét lại mã đó lần 2 (Đỏ - Cổng từ chối: <em>"Vé đã được sử dụng trước đó"</em>)! Hoặc tải ảnh QR quá hạn ở Thẻ 2 quét thử.
-            </div>
-            <div class="guide-step-card">
-              <div style="font-weight: 600; color: var(--primary); margin-bottom: 4px;">3. Thách thức 20 cổng quét cùng lúc</div>
-              Tại Thẻ 3, kéo slider 20 luồng -> Bấm <strong>"💥 Bắn Luồng Đồng Thời"</strong>. Xem 20 cổng nhấp nháy, duy nhất 1 cổng xanh, 19 cổng đỏ. Bấm nút xem trực tiếp 20 dòng log thật trong CSDL SQLite!
-            </div>
-          </div>
-        </div>
-
         <div class="attacks-grid">
           
           <!-- Attack 1: Forgery / Tamper -->
           <div class="attack-card">
             <div>
               <span class="attack-tag">CHỮ KÝ SỐ ECDSA</span>
-              <div class="attack-title" id="titleAttack1">1. Xưởng Chế Tạo Mã QR Giả Mạo</div>
+              <div class="attack-title" id="titleAttack1">1. Làm giả dữ liệu vé</div>
               <div class="attack-desc" id="descAttack1">
                 Kẻ tấn công sửa trường dữ liệu hạng vé hoặc mã vé mà không có Private Key máy chủ để ký số lại.
               </div>
@@ -421,7 +374,7 @@
             </div>
             <div>
               <button class="btn btn-danger" style="width: 100%;" onclick="runCustomTamperAttack()">
-                <span id="btnTrigger1">🛠️ Tạo Mã QR Giả Mạo Ngay</span>
+                <span id="btnTrigger1">🛠️ Sinh Mã QR Giả Mạo</span>
               </button>
 
               <!-- QR Code Live Output Box -->
@@ -431,14 +384,14 @@
                 </div>
                 <div style="display: flex; gap: 6px; width: 100%; margin-bottom: 8px;">
                   <button class="btn btn-secondary" onclick="downloadTamperedQr()" style="flex: 1; font-size: 11px; height: 28px;">
-                    📥 Tải Ảnh QR Này
+                    📥 Tải ảnh QR giả mạo
                   </button>
                   <button class="btn btn-secondary" onclick="copyTamperedPayload()" style="flex: 1; font-size: 11px; height: 28px;">
-                    📋 Copy Payload
+                    📋 Sao chép chuỗi JSON
                   </button>
                 </div>
-                <div style="font-size: 11px; color: #818cf8; text-align: left; width: 100%; line-height: 1.4; border-top: 1px dashed var(--hairline); padding-top: 8px;">
-                  💡 <strong>Bước tiếp theo khi quay video:</strong> Tải ảnh QR này về, mang sang tab <a href="/gatekeeper" target="_blank" style="color:var(--primary); text-decoration:underline;">Cổng Soát Vé</a> tải ảnh lên để xem còi báo động kêu đỏ rực!
+                <div style="font-size: 11px; color: var(--ink-subtle); text-align: left; width: 100%; border-top: 1px dashed var(--hairline); padding-top: 8px;">
+                  Mã QR chứa payload đã bị can thiệp để kiểm thử cơ chế xác thực tại cổng soát vé.
                 </div>
               </div>
 
@@ -450,7 +403,7 @@
           <div class="attack-card">
             <div>
               <span class="attack-tag">CHỐNG PHÁT LẠI REPLAY</span>
-              <div class="attack-title" id="titleAttack2">2. Xưởng Chế Tạo Mã QR Quá Hạn</div>
+              <div class="attack-title" id="titleAttack2">2. Tấn công phát lại (Replay)</div>
               <div class="attack-desc" id="descAttack2">
                 Dùng ảnh chụp màn hình QR cũ quá 30 giây hoặc gửi lại gói tin chứa Nonce đã dùng.
               </div>
@@ -471,7 +424,7 @@
             </div>
             <div>
               <button class="btn btn-danger" style="width: 100%;" onclick="runCustomReplayAttack()">
-                <span id="btnTrigger2">🛠️ Tạo Mã QR Quá Hạn Ngay</span>
+                <span id="btnTrigger2">⏰ Sinh Mã QR Hết Hạn</span>
               </button>
 
               <!-- QR Code Expired Output Box -->
@@ -480,10 +433,10 @@
                   <div id="replayQrContainer"></div>
                 </div>
                 <button class="btn btn-secondary" onclick="downloadExpiredQr()" style="width: 100%; font-size: 11px; height: 28px; margin-bottom: 8px;">
-                  📥 Tải Ảnh QR Quá Hạn Này
+                  📥 Tải ảnh QR hết hạn
                 </button>
-                <div style="font-size: 11px; color: #818cf8; text-align: left; width: 100%; line-height: 1.4; border-top: 1px dashed var(--hairline); padding-top: 8px;">
-                  💡 <strong>Thử nghiệm thật:</strong> Mang ảnh này sang <a href="/gatekeeper" target="_blank" style="color:var(--primary); text-decoration:underline;">Cổng Soát Vé</a> quét thử. Cổng sẽ phát hiện mã đã quá 30 giây và từ chối ngay lập tức!
+                <div style="font-size: 11px; color: var(--ink-subtle); text-align: left; width: 100%; border-top: 1px dashed var(--hairline); padding-top: 8px;">
+                  Mã QR có chữ ký máy chủ nhưng timestamp lùi về quá khứ (> 30s) để kiểm tra cửa sổ trượt.
                 </div>
               </div>
 
@@ -495,7 +448,7 @@
           <div class="attack-card">
             <div>
               <span class="attack-tag">KHÓA NGUYÊN TỬ CSDL</span>
-              <div class="attack-title" id="titleAttack3">3. Thí Nghiệm Đua Tranh 20 Cổng</div>
+              <div class="attack-title" id="titleAttack3">3. Tranh chấp đồng thời</div>
               <div class="attack-desc" id="descAttack3">
                 Mô phỏng N cổng quét nã request check-in cùng 1 mili-giây. Kiểm chứng Atomic Lock chống Race Condition.
               </div>
@@ -514,7 +467,7 @@
             </div>
             <div>
               <button class="btn btn-danger" style="width: 100%;" onclick="runCustomConcurrencyAttack()">
-                <span id="btnTrigger3">💥 Bắn Luồng Đồng Thời</span>
+                <span id="btnTrigger3">⚡ Kiểm Tra Đua Tranh Đồng Thời</span>
               </button>
               <div id="outputConcurrency" class="attack-output"></div>
             </div>
