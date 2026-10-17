@@ -441,70 +441,77 @@ footer a:hover {
 /* ==========================================================================
    3-Level Role Selector Navigation Bar
    ========================================================================== */
-.role-selector-bar {
-  display: inline-flex;
-  align-items: center;
-  background: var(--surface-2);
-  border: 1px solid var(--hairline);
-  border-radius: 8px;
-  padding: 3px;
-  gap: 3px;
+a, a:link, a:visited, a:hover, a:active {
+  text-decoration: none;
 }
 
-.role-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
+.role-selector-bar {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: var(--surface-2) !important;
+  border: 1px solid var(--hairline) !important;
+  border-radius: 8px !important;
+  padding: 3px !important;
+  gap: 4px !important;
+}
+
+.role-tab, a.role-tab, a.role-tab:link, a.role-tab:visited {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 12px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
   color: var(--ink-subtle) !important;
   text-decoration: none !important;
-  transition: all 0.15s ease;
-  user-select: none;
+  border: 1px solid transparent !important;
+  transition: all 0.15s ease !important;
+  user-select: none !important;
 }
 
-.role-tab:hover {
+.role-tab:hover, a.role-tab:hover {
   color: var(--ink) !important;
-  background: var(--surface-3);
+  background: var(--surface-3) !important;
   text-decoration: none !important;
 }
 
-.role-tab.active {
+.role-tab.active, a.role-tab.active, a.role-tab.active:link, a.role-tab.active:visited {
   color: var(--ink) !important;
-  background: var(--surface-1);
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--hairline);
+  background: var(--surface-1) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid var(--hairline-strong) !important;
   text-decoration: none !important;
 }
 
 .role-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 600;
-  background: var(--surface-3);
-  color: var(--ink-muted);
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 600 !important;
+  background: var(--surface-3) !important;
+  color: var(--ink-muted) !important;
 }
 
 .role-tab.active .role-num {
-  background: var(--primary);
-  color: #FFFFFF;
+  background: var(--primary) !important;
+  color: #FFFFFF !important;
 }
 
 .role-icon {
-  font-size: 13px;
-  line-height: 1;
+  font-size: 13px !important;
+  line-height: 1 !important;
 }
 
 .role-label {
-  font-size: 12px;
+  font-size: 12px !important;
+  color: inherit !important;
 }
+
 

@@ -7,9 +7,72 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/linear-theme.css">
+  <link rel="stylesheet" href="/static/linear-theme.css?v=2.5">
   <script src="/static/qrcode.min.js"></script>
   <style>
+    /* 3-Level Role Selector Navigation Styles */
+    .role-selector-bar {
+      display: inline-flex !important;
+      align-items: center !important;
+      background: var(--surface-2) !important;
+      border: 1px solid var(--hairline) !important;
+      border-radius: 8px !important;
+      padding: 3px !important;
+      gap: 4px !important;
+    }
+    .role-tab, a.role-tab, a.role-tab:link, a.role-tab:visited {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      padding: 5px 12px !important;
+      border-radius: 6px !important;
+      font-size: 12px !important;
+      font-weight: 500 !important;
+      color: var(--ink-subtle) !important;
+      text-decoration: none !important;
+      border: 1px solid transparent !important;
+      transition: all 0.15s ease !important;
+      user-select: none !important;
+    }
+    .role-tab:hover, a.role-tab:hover {
+      color: var(--ink) !important;
+      background: var(--surface-3) !important;
+      text-decoration: none !important;
+    }
+    .role-tab.active, a.role-tab.active, a.role-tab.active:link, a.role-tab.active:visited {
+      color: var(--ink) !important;
+      background: var(--surface-1) !important;
+      font-weight: 600 !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+      border: 1px solid var(--hairline-strong) !important;
+      text-decoration: none !important;
+    }
+    .role-num {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 18px !important;
+      height: 18px !important;
+      border-radius: 4px !important;
+      font-size: 11px !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-weight: 600 !important;
+      background: var(--surface-3) !important;
+      color: var(--ink-muted) !important;
+    }
+    .role-tab.active .role-num {
+      background: var(--primary) !important;
+      color: #FFFFFF !important;
+    }
+    .role-icon {
+      font-size: 13px !important;
+      line-height: 1 !important;
+    }
+    .role-label {
+      font-size: 12px !important;
+      color: inherit !important;
+    }
+
     .pass-layout {
       max-width: 440px;
       margin: 0 auto;
