@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/linear-theme.css">
+  <script src="/static/qrcode.min.js"></script>
   <style>
     .pass-layout {
       max-width: 440px;
@@ -84,6 +85,16 @@
       border: 1px solid var(--hairline);
       box-shadow: 0 4px 16px rgba(0,0,0,0.15);
       margin-bottom: 24px;
+      min-width: 208px;
+      min-height: 208px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #qrcode img, #qrcode canvas {
+      display: block;
+      margin: 0 auto;
     }
 
     .countdown-widget {
@@ -185,7 +196,8 @@
 
         <div class="ticket-body">
           <div class="qr-frame">
-            <canvas id="qrCanvas" width="180" height="180"></canvas>
+            <div id="qrcode"></div>
+            <canvas id="qrCanvas" width="180" height="180" style="display: none;"></canvas>
           </div>
 
           <div class="countdown-widget">
@@ -296,10 +308,13 @@
     let timerHandle = null;
     const ticketId = "TK-98A4-2026";
 
-    function drawLinearQR(canvas, seed) {
+    function drawLinearQR(seed) {
+      const canvas = document.getElementById('qrCanvas');
+      if (!canvas) return;
+      canvas.style.display = 'block';
       const ctx = canvas.getContext('2d');
       const size = 180;
-      const cells = 21;
+      const cells = 25;
       const cellSize = size / cells;
 
       ctx.fillStyle = '#FFFFFF';
@@ -315,24 +330,55 @@
       }
 
       drawCorner(0, 0);
-      drawCorner(14, 0);
-      drawCorner(0, 14);
+      drawCorner(cells - 7, 0);
+      drawCorner(0, cells - 7);
 
-      let hash = 0;
+      // Seed hashing - strictly unsigned 32-bit positive
+      let hash = 5381;
       for (let i = 0; i < seed.length; i++) {
-        hash = (hash << 5) - hash + seed.charCodeAt(i);
-        hash |= 0;
+        hash = (((hash << 5) + hash) + seed.charCodeAt(i)) >>> 0;
       }
 
       for (let r = 0; r < cells; r++) {
         for (let c = 0; c < cells; c++) {
-          if ((r < 8 && c < 8) || (r < 8 && c > 13) || (r > 13 && c < 8)) continue;
-          hash = (hash * 9301 + 49297) % 233280;
-          if (hash / 233280 > 0.48) {
+          if ((r < 8 && c < 8) || (r < 8 && c > cells - 9) || (r > cells - 9 && c < 8)) continue;
+          if (r === 6 || c === 6) {
+            if ((r + c) % 2 === 0) ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+            continue;
+          }
+          hash = (Math.imul(hash, 1103515245) + 12345) >>> 0;
+          if ((hash % 100) < 46) {
             ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
           }
         }
       }
+    }
+
+    let qrCodeObj = null;
+    function renderQRCode(payloadStr) {
+      const qrContainer = document.getElementById('qrcode');
+      if (typeof QRCode !== 'undefined' && qrContainer) {
+        try {
+          if (!qrCodeObj) {
+            qrContainer.innerHTML = '';
+            qrCodeObj = new QRCode(qrContainer, {
+              text: payloadStr,
+              width: 180,
+              height: 180,
+              colorDark: "#090A0F",
+              colorLight: "#FFFFFF",
+              correctLevel: QRCode.CorrectLevel.L
+            });
+          } else {
+            qrCodeObj.makeCode(payloadStr);
+          }
+          return;
+        } catch (e) {
+          console.warn("Lỗi QRCode library, chuyển sang vẽ canvas:", e);
+        }
+      }
+      if (qrContainer) qrContainer.style.display = 'none';
+      drawLinearQR(payloadStr);
     }
 
     async function fetchLiveQR() {
@@ -342,9 +388,8 @@
           const data = await res.json();
           const payload = data.qr_payload;
           
-          // Draw real cryptographic payload into canvas
-          const canvas = document.getElementById('qrCanvas');
-          drawLinearQR(canvas, JSON.stringify(payload));
+          // Draw real cryptographic payload into QR code
+          renderQRCode(JSON.stringify(payload));
 
           // Save payload for gatekeeper testing
           localStorage.setItem('server_live_payload', JSON.stringify(payload));
