@@ -210,11 +210,14 @@
             </div>
           </div>
 
-          <div style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
-            <button class="btn btn-secondary" onclick="forceRotateQR()" style="flex: 1; height: 32px; font-size: 11px;" id="btnForceRotate">
+          <div style="display: flex; gap: 6px; width: 100%; margin-top: 4px;">
+            <button class="btn btn-secondary" onclick="downloadQRCode()" style="flex: 1; height: 32px; font-size: 11px; padding: 0 4px;" id="btnDownloadQR">
+              📥 Tải ảnh mã QR
+            </button>
+            <button class="btn btn-secondary" onclick="forceRotateQR()" style="flex: 1; height: 32px; font-size: 11px; padding: 0 4px;" id="btnForceRotate">
               🔄 Làm mới mã QR
             </button>
-            <button class="btn btn-secondary" onclick="resetTicketStatus()" style="flex: 1; height: 32px; font-size: 11px; color: var(--primary);" id="btnResetTicket">
+            <button class="btn btn-secondary" onclick="resetTicketStatus()" style="flex: 1; height: 32px; font-size: 11px; padding: 0 4px; color: var(--primary);" id="btnResetTicket">
               ♻️ Đặt lại vé ACTIVE
             </button>
           </div>
@@ -264,6 +267,7 @@
         statusUsed: "ĐÃ SỬ DỤNG",
         navGatekeeper: "🛡️ Cổng Soát Vé Bảo Vệ",
         navAdmin: "🔬 Phòng Thí Nghiệm & Quản Trị",
+        btnDownloadQR: "📥 Tải ảnh mã QR",
         btnForceRotate: "🔄 Làm mới mã QR",
         btnResetTicket: "♻️ Đặt lại vé ACTIVE"
       },
@@ -279,6 +283,7 @@
         statusUsed: "USED",
         navGatekeeper: "🛡️ Gatekeeper Terminal",
         navAdmin: "🔬 Security Lab",
+        btnDownloadQR: "📥 Download QR Image",
         btnForceRotate: "🔄 Rotate QR Now",
         btnResetTicket: "♻️ Reset to ACTIVE"
       }
@@ -295,6 +300,7 @@
       document.getElementById('lblTicketId').textContent = t.ticketId;
       document.getElementById('navGatekeeper').textContent = t.navGatekeeper;
       document.getElementById('navAdmin').textContent = t.navAdmin;
+      document.getElementById('btnDownloadQR').textContent = t.btnDownloadQR;
       document.getElementById('btnForceRotate').textContent = t.btnForceRotate;
       document.getElementById('btnResetTicket').textContent = t.btnResetTicket;
       document.getElementById('langIndicator').textContent = currentLang === 'vi' ? 'EN' : 'VI';
@@ -451,6 +457,32 @@
       bar.style.backgroundColor = 'var(--primary)';
       document.getElementById('countdownTimer').textContent = '30s';
       fetchLiveQR();
+    }
+
+    function downloadQRCode() {
+      const qrDiv = document.getElementById('qrcode');
+      let dataUrl = null;
+      
+      const img = qrDiv.querySelector('img');
+      const canvas = qrDiv.querySelector('canvas') || document.getElementById('qrCanvas');
+      
+      if (img && img.src && img.src.startsWith('data:')) {
+        dataUrl = img.src;
+      } else if (canvas && canvas.toDataURL) {
+        dataUrl = canvas.toDataURL('image/png');
+      }
+
+      if (!dataUrl) {
+        alert(currentLang === 'vi' ? 'Chưa có ảnh mã QR để tải!' : 'No QR image available to download!');
+        return;
+      }
+
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `ticket-${ticketId}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
 
     async function resetTicketStatus() {

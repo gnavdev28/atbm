@@ -111,13 +111,6 @@
       color: var(--danger);
     }
 
-    .input-mode-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
     .dropzone-label {
       margin: 0;
       padding: 16px;
@@ -136,17 +129,6 @@
     .dropzone-label:hover {
       border-color: var(--primary);
       background: var(--surface-2);
-    }
-
-    .gun-panel {
-      margin: 0;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: var(--surface-1);
-      border: 1px solid var(--hairline);
-      border-radius: 8px;
     }
 
     .demo-strip {
@@ -248,28 +230,13 @@
         </button>
       </div>
 
-      <!-- Input Methods: File Upload & Manual USB Gun / Paste -->
-      <div class="input-mode-grid">
-        <!-- Upload Ticket Image -->
-        <label class="dropzone-label">
-          <input type="file" id="ticketFileInput" accept="image/*" style="display: none;" onchange="handleFileUpload(this)">
-          <div style="font-size: 24px; margin-bottom: 4px;">🖼️</div>
-          <div style="font-size: 13px; font-weight: 600; color: var(--ink);" id="lblUploadTitle">Tải Lên / Kéo Thả Ảnh Vé QR</div>
-          <div style="font-size: 11px; color: var(--ink-subtle); margin-top: 3px;" id="lblUploadDesc">Thử nghiệm ảnh chụp màn hình / vé cũ</div>
-        </label>
-
-        <!-- USB Barcode Gun / Paste JSON -->
-        <div class="gun-panel">
-          <div>
-            <div style="font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px;" id="lblGunTitle">Súng Quét Cầm Tay / Dán Payload</div>
-            <div style="font-size: 11px; color: var(--ink-subtle); margin-bottom: 8px;" id="lblGunDesc">Tự động nhận diện chuỗi hoặc súng USB</div>
-          </div>
-          <div style="display: flex; gap: 6px;">
-            <input type="text" id="inputRawPayload" class="form-control" placeholder='Dán {"tid":...} hoặc quét mã' style="font-size: 12px; height: 34px;" onkeydown="if(event.key==='Enter') handleManualSubmit()">
-            <button class="btn btn-secondary" onclick="handleManualSubmit()" style="height: 34px; font-size: 12px; padding: 0 14px;" id="btnManualSubmit">Xác Minh</button>
-          </div>
-        </div>
-      </div>
+      <!-- Input Method: File Upload Dropzone -->
+      <label class="dropzone-label" style="margin-bottom: 16px;">
+        <input type="file" id="ticketFileInput" accept="image/*" style="display: none;" onchange="handleFileUpload(this)">
+        <div style="font-size: 24px; margin-bottom: 4px;">🖼️</div>
+        <div style="font-size: 13px; font-weight: 600; color: var(--ink);" id="lblUploadTitle">Tải Lên / Kéo Thả Ảnh Vé QR</div>
+        <div style="font-size: 11px; color: var(--ink-subtle); margin-top: 3px;" id="lblUploadDesc">Kiểm tra ảnh vé tải về từ trang khách hoặc ảnh chụp màn hình</div>
+      </label>
 
       <!-- Fast Demo Presets (for instant defense testing) -->
       <div class="demo-strip">
@@ -329,10 +296,7 @@
         btnToggleCamera: "📹 Bật Webcam Quét Trực Tiếp",
         btnStopCamera: "⏹ Tắt Camera",
         lblUploadTitle: "Tải Lên / Kéo Thả Ảnh Vé QR",
-        lblUploadDesc: "Thử nghiệm ảnh chụp màn hình / vé cũ",
-        lblGunTitle: "Súng Quét Cầm Tay / Dán Payload",
-        lblGunDesc: "Tự động nhận diện chuỗi hoặc súng USB",
-        btnManualSubmit: "Xác Minh",
+        lblUploadDesc: "Kiểm tra ảnh vé tải về từ trang khách hoặc ảnh chụp màn hình",
         btnScanPass: "⚡ Mô phỏng: Quét mã mới nhất từ máy chủ",
         btnScanTampered: "⚠️ Thử quét mã bị sửa lậu",
         titleAuditLog: "Nhật ký phản hồi từ Server Python (Audit Logs)",
@@ -352,10 +316,7 @@
         btnToggleCamera: "📹 Start Live Webcam Scan",
         btnStopCamera: "⏹ Stop Camera",
         lblUploadTitle: "Upload / Drop QR Pass Image",
-        lblUploadDesc: "Test expired screenshot / replay attacks",
-        lblGunTitle: "Handheld Barcode Gun / Paste JSON",
-        lblGunDesc: "Auto-detect input keystroke or paste",
-        btnManualSubmit: "Verify",
+        lblUploadDesc: "Verify downloaded pass or screenshot",
         btnScanPass: "⚡ Simulation: Scan Fresh Server Pass",
         btnScanTampered: "⚠️ Test Tampered / Forged Pass",
         titleAuditLog: "Server Response Audit Logs",
@@ -379,9 +340,6 @@
       document.getElementById('btnStopCamera').textContent = t.btnStopCamera;
       document.getElementById('lblUploadTitle').textContent = t.lblUploadTitle;
       document.getElementById('lblUploadDesc').textContent = t.lblUploadDesc;
-      document.getElementById('lblGunTitle').textContent = t.lblGunTitle;
-      document.getElementById('lblGunDesc').textContent = t.lblGunDesc;
-      document.getElementById('btnManualSubmit').textContent = t.btnManualSubmit;
       document.getElementById('btnScanPass').textContent = t.btnScanPass;
       document.getElementById('btnScanTampered').textContent = t.btnScanTampered;
       document.getElementById('titleAuditLog').textContent = t.titleAuditLog;
@@ -556,14 +514,6 @@
       }
     }
 
-    // 3. Manual / USB Gun Input
-    async function handleManualSubmit() {
-      const input = document.getElementById('inputRawPayload');
-      const val = input.value.trim();
-      if (!val) return;
-      await handleScannedContent(val);
-      input.value = '';
-    }
 
     // Unified Scan Handler with 2.5s Debounce
     let isProcessingScan = false;

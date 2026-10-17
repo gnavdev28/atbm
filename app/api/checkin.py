@@ -65,7 +65,7 @@ def process_checkin(req: CheckinScanRequest):
             "success": False,
             "error_code": "FORGERY_DETECTED",
             "step_failed": "ECDSA_SIGNATURE_MISMATCH",
-            "message": "CẢNH BÁO: Chữ ký số ECDSA P-256 không hợp lệ. Nội dung vé đã bị can thiệp làm giả!"
+            "message": "Chữ ký số ECDSA P-256 không hợp lệ hoặc dữ liệu vé không khớp."
         }
 
     # Giải mã thông tin người mua (Chương 1 & 2 - AES-GCM)
