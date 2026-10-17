@@ -8,24 +8,48 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/linear-theme.css">
+  <script src="/static/html5-qrcode.min.js"></script>
   <style>
     .terminal-container {
-      max-width: 640px;
+      max-width: 680px;
       margin: 0 auto;
     }
 
     .camera-hud {
-      background: var(--surface-2);
+      background: #090A0F;
       border: 1px solid var(--hairline);
       border-radius: 12px;
-      height: 320px;
+      height: 340px;
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+    }
+
+    #reader {
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    #reader video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    #reader__scan_region {
+      border: 2px solid var(--primary) !important;
+      border-radius: 10px;
+    }
+
+    #reader__dashboard {
+      display: none !important;
     }
 
     .viewfinder {
@@ -37,6 +61,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      background: rgba(255, 255, 255, 0.02);
     }
 
     .laser-line {
@@ -46,7 +71,7 @@
       right: 0;
       height: 2px;
       background: var(--primary);
-      box-shadow: 0 0 8px var(--primary);
+      box-shadow: 0 0 10px var(--primary);
       animation: laserSweep 2s infinite ease-in-out;
     }
 
@@ -66,6 +91,12 @@
       font-size: 13px;
       font-weight: 500;
       border: 1px solid transparent;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .scan-feedback.valid {
@@ -78,6 +109,50 @@
       background: var(--danger-subtle);
       border-color: rgba(235, 87, 87, 0.3);
       color: var(--danger);
+    }
+
+    .input-mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .dropzone-label {
+      margin: 0;
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed var(--hairline-strong);
+      background: var(--surface-1);
+      border-radius: 8px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .dropzone-label:hover {
+      border-color: var(--primary);
+      background: var(--surface-2);
+    }
+
+    .gun-panel {
+      margin: 0;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: 8px;
+    }
+
+    .demo-strip {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
     }
   </style>
 </head>
@@ -109,7 +184,7 @@
       <button class="icon-btn" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối">
         <span id="themeIcon">☀️</span>
       </button>
-      <button class="btn btn-secondary" style="height: 32px; font-size: 11px;" onclick="logoutStaff()" id="btnLogout" style="display: none;">
+      <button class="btn btn-secondary" style="height: 32px; font-size: 11px; display: none;" onclick="logoutStaff()" id="btnLogout">
         Đăng Xuất
       </button>
     </div>
@@ -137,53 +212,96 @@
       </button>
     </div>
 
-    <!-- 2. Scanner HUD -->
+    <!-- 2. Scanner Terminal -->
     <div id="scannerSection" class="terminal-container" style="display: none;">
       
-      <div style="margin-bottom: 20px;">
+      <div style="margin-bottom: 18px;">
         <h1 style="font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 4px;" id="titleTerminal">
           Máy Quét Cổng 1A (Terminal 1A)
         </h1>
         <p style="font-size: 13px; color: var(--ink-subtle);" id="descTerminal">
-          Kết nối trực tiếp API Backend FastAPI. Xác minh chữ ký số ECDSA P-256 thời gian thực.
+          Hỗ trợ Webcam trực tiếp, ảnh chụp màn hình vé, súng quét mã vạch USB và xác minh chữ ký số ECDSA P-256 thời gian thực.
         </p>
       </div>
 
-      <div class="camera-hud">
-        <div class="viewfinder">
-          <div class="laser-line"></div>
-          <span style="font-size: 32px; opacity: 0.3;">📷</span>
+      <!-- Real Live Camera HUD -->
+      <div class="camera-hud" id="cameraHudBox">
+        <div id="reader" style="display: none;"></div>
+
+        <div id="standbyViewfinder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%;">
+          <div class="viewfinder">
+            <div class="laser-line"></div>
+            <span style="font-size: 36px; opacity: 0.35;">📷</span>
+          </div>
+          <div style="margin-top: 18px; display: flex; gap: 8px; z-index: 2;">
+            <button class="btn btn-primary" onclick="toggleWebcamScanner()" id="btnToggleCamera" style="font-size: 13px; height: 38px; padding: 0 18px;">
+              📹 Bật Webcam Quét Trực Tiếp
+            </button>
+          </div>
+          <div style="position: absolute; bottom: 16px; font-size: 11px; color: var(--ink-subtle); font-family: 'JetBrains Mono', monospace;" id="txtCameraReady">
+            SẴN SÀNG KẾT NỐI WEBCAM HOẶC TẢI ẢNH VÉ
+          </div>
         </div>
-        <div style="position: absolute; bottom: 16px; font-size: 12px; color: var(--ink-subtle); font-family: 'JetBrains Mono', monospace;" id="txtCameraReady">
-          MÁY QUÉT KẾT NỐI SERVER THÀNH CÔNG
+
+        <button class="btn btn-secondary" id="btnStopCamera" onclick="toggleWebcamScanner()" style="display: none; position: absolute; top: 12px; right: 12px; z-index: 10; height: 32px; font-size: 11px; background: rgba(0,0,0,0.7); color: #fff; border: 1px solid rgba(255,255,255,0.25);">
+          ⏹ Tắt Camera
+        </button>
+      </div>
+
+      <!-- Input Methods: File Upload & Manual USB Gun / Paste -->
+      <div class="input-mode-grid">
+        <!-- Upload Ticket Image -->
+        <label class="dropzone-label">
+          <input type="file" id="ticketFileInput" accept="image/*" style="display: none;" onchange="handleFileUpload(this)">
+          <div style="font-size: 24px; margin-bottom: 4px;">🖼️</div>
+          <div style="font-size: 13px; font-weight: 600; color: var(--ink);" id="lblUploadTitle">Tải Lên / Kéo Thả Ảnh Vé QR</div>
+          <div style="font-size: 11px; color: var(--ink-subtle); margin-top: 3px;" id="lblUploadDesc">Thử nghiệm ảnh chụp màn hình / vé cũ</div>
+        </label>
+
+        <!-- USB Barcode Gun / Paste JSON -->
+        <div class="gun-panel">
+          <div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px;" id="lblGunTitle">Súng Quét Cầm Tay / Dán Payload</div>
+            <div style="font-size: 11px; color: var(--ink-subtle); margin-bottom: 8px;" id="lblGunDesc">Tự động nhận diện chuỗi hoặc súng USB</div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="inputRawPayload" class="form-control" placeholder='Dán {"tid":...} hoặc quét mã' style="font-size: 12px; height: 34px;" onkeydown="if(event.key==='Enter') handleManualSubmit()">
+            <button class="btn btn-secondary" onclick="handleManualSubmit()" style="height: 34px; font-size: 12px; padding: 0 14px;" id="btnManualSubmit">Xác Minh</button>
+          </div>
         </div>
       </div>
 
-      <div style="display: flex; gap: 10px; margin-bottom: 16px;">
-        <button class="btn btn-primary" style="flex: 1;" onclick="scanAttendeePass()">
-          <span id="btnScanPass">✅ Quét mã QR của khách</span>
+      <!-- Fast Demo Presets (for instant defense testing) -->
+      <div class="demo-strip">
+        <button class="btn btn-secondary" style="flex: 1; font-size: 12px;" onclick="scanAttendeePass()">
+          <span id="btnScanPass">⚡ Mô phỏng: Quét mã mới nhất từ máy chủ</span>
         </button>
-        <button class="btn btn-danger" onclick="scanTamperedPass()">
+        <button class="btn btn-secondary" style="font-size: 12px; color: var(--danger); border-color: rgba(235, 87, 87, 0.3);" onclick="scanTamperedPass()">
           <span id="btnScanTampered">⚠️ Thử quét mã bị sửa lậu</span>
         </button>
       </div>
 
+      <!-- Scan Feedback Result -->
       <div id="scanFeedback" class="scan-feedback">
-        <div id="feedbackIcon" style="font-size: 20px;">✓</div>
+        <div id="feedbackIcon" style="font-size: 22px;">✓</div>
         <div>
-          <div id="feedbackTitle" style="font-weight: 600;">CHECK-IN THÀNH CÔNG</div>
-          <div id="feedbackSubtitle" style="font-size: 12px; opacity: 0.85;">Chữ ký số hợp lệ - Mời khách vào cửa</div>
+          <div id="feedbackTitle" style="font-weight: 600; font-size: 14px;">CHECK-IN THÀNH CÔNG</div>
+          <div id="feedbackSubtitle" style="font-size: 12px; opacity: 0.9; margin-top: 2px;">Chữ ký số hợp lệ - Mời khách vào cửa</div>
         </div>
       </div>
 
-      <div class="card-panel" style="margin-top: 20px;">
+      <!-- Real Server Python Audit Logs -->
+      <div class="card-panel" style="margin-top: 18px;">
         <div class="card-panel-title">
           <span id="titleAuditLog">Nhật ký phản hồi từ Server Python (Audit Logs)</span>
         </div>
-        <div class="code-snippet" id="auditLogs">Sẵn sàng nhận diện mã...</div>
+        <div class="code-snippet" id="auditLogs">Sẵn sàng nhận diện mã qua Camera, Tải ảnh hoặc Súng quét USB...</div>
       </div>
 
     </div>
+
+    <!-- Hidden helper for file-based decoding -->
+    <div id="readerFileHelper" style="display: none;"></div>
 
   </main>
 
@@ -206,9 +324,16 @@
         lblPin: "Mã PIN Nhân Viên (Thử: 1234)",
         btnLogin: "Xác Nhận Vào Ca",
         titleTerminal: "Máy Quét Cổng 1A (Terminal 1A)",
-        descTerminal: "Kết nối trực tiếp API Backend FastAPI. Xác minh chữ ký số ECDSA P-256 thời gian thực.",
-        txtCameraReady: "MÁY QUÉT KẾT NỐI SERVER THÀNH CÔNG",
-        btnScanPass: "✅ Quét mã QR của khách",
+        descTerminal: "Hỗ trợ Webcam trực tiếp, ảnh chụp màn hình vé, súng quét mã vạch USB và xác minh chữ ký số ECDSA P-256 thời gian thực.",
+        txtCameraReady: "SẴN SÀNG KẾT NỐI WEBCAM HOẶC TẢI ẢNH VÉ",
+        btnToggleCamera: "📹 Bật Webcam Quét Trực Tiếp",
+        btnStopCamera: "⏹ Tắt Camera",
+        lblUploadTitle: "Tải Lên / Kéo Thả Ảnh Vé QR",
+        lblUploadDesc: "Thử nghiệm ảnh chụp màn hình / vé cũ",
+        lblGunTitle: "Súng Quét Cầm Tay / Dán Payload",
+        lblGunDesc: "Tự động nhận diện chuỗi hoặc súng USB",
+        btnManualSubmit: "Xác Minh",
+        btnScanPass: "⚡ Mô phỏng: Quét mã mới nhất từ máy chủ",
         btnScanTampered: "⚠️ Thử quét mã bị sửa lậu",
         titleAuditLog: "Nhật ký phản hồi từ Server Python (Audit Logs)",
         linkBackAttendee: "← Về Cổng Khách Hàng",
@@ -222,10 +347,17 @@
         lblPin: "Staff PIN Code (Default: 1234)",
         btnLogin: "Sign In to Terminal",
         titleTerminal: "Gate 1A Scanner Terminal",
-        descTerminal: "Live connection to FastAPI backend. Real-time ECDSA P-256 verification.",
-        txtCameraReady: "SERVER CONNECTION ACTIVE",
-        btnScanPass: "✅ Scan Incoming QR Pass",
-        btnScanTampered: "⚠️ Scan Tampered Pass",
+        descTerminal: "Supports live webcam stream, ticket screenshot upload, USB barcode scanners, and real-time ECDSA P-256 verification.",
+        txtCameraReady: "READY FOR WEBCAM STREAM OR TICKET IMAGE",
+        btnToggleCamera: "📹 Start Live Webcam Scan",
+        btnStopCamera: "⏹ Stop Camera",
+        lblUploadTitle: "Upload / Drop QR Pass Image",
+        lblUploadDesc: "Test expired screenshot / replay attacks",
+        lblGunTitle: "Handheld Barcode Gun / Paste JSON",
+        lblGunDesc: "Auto-detect input keystroke or paste",
+        btnManualSubmit: "Verify",
+        btnScanPass: "⚡ Simulation: Scan Fresh Server Pass",
+        btnScanTampered: "⚠️ Test Tampered / Forged Pass",
         titleAuditLog: "Server Response Audit Logs",
         linkBackAttendee: "← Attendee Portal",
         linkAdmin: "Admin Console →",
@@ -243,6 +375,13 @@
       document.getElementById('titleTerminal').textContent = t.titleTerminal;
       document.getElementById('descTerminal').textContent = t.descTerminal;
       document.getElementById('txtCameraReady').textContent = t.txtCameraReady;
+      document.getElementById('btnToggleCamera').textContent = t.btnToggleCamera;
+      document.getElementById('btnStopCamera').textContent = t.btnStopCamera;
+      document.getElementById('lblUploadTitle').textContent = t.lblUploadTitle;
+      document.getElementById('lblUploadDesc').textContent = t.lblUploadDesc;
+      document.getElementById('lblGunTitle').textContent = t.lblGunTitle;
+      document.getElementById('lblGunDesc').textContent = t.lblGunDesc;
+      document.getElementById('btnManualSubmit').textContent = t.btnManualSubmit;
       document.getElementById('btnScanPass').textContent = t.btnScanPass;
       document.getElementById('btnScanTampered').textContent = t.btnScanTampered;
       document.getElementById('titleAuditLog').textContent = t.titleAuditLog;
@@ -265,6 +404,54 @@
       document.getElementById('themeIcon').textContent = next === 'dark' ? '☀️' : '🌙';
     }
 
+    // Sound feedback effects via Web Audio API
+    function playSuccessBeep() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1760, ctx.currentTime);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.15);
+      } catch (e) {
+        console.warn("AudioContext error:", e);
+      }
+    }
+
+    function playFailureBuzzer() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+        
+        function buzz(startTime, freq) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.25, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.18);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.18);
+        }
+
+        buzz(now, 180);
+        buzz(now + 0.22, 140);
+      } catch (e) {
+        console.warn("AudioContext error:", e);
+      }
+    }
+
     function loginStaff() {
       const pin = document.getElementById('inputPin').value;
       if (pin === '1234') {
@@ -276,6 +463,9 @@
     }
 
     function logoutStaff() {
+      if (isWebcamRunning) {
+        toggleWebcamScanner();
+      }
       sessionStorage.removeItem('staff_auth');
       checkAuth();
     }
@@ -287,11 +477,117 @@
       document.getElementById('btnLogout').style.display = isAuth ? 'inline-flex' : 'none';
     }
 
-    // Call Real FastAPI /api/checkin
+    // 1. Live Webcam Scanning Logic
+    let html5QrScanner = null;
+    let isWebcamRunning = false;
+
+    async function toggleWebcamScanner() {
+      const readerEl = document.getElementById('reader');
+      const standbyEl = document.getElementById('standbyViewfinder');
+      const stopBtn = document.getElementById('btnStopCamera');
+      const statusText = document.getElementById('txtCameraReady');
+
+      if (!isWebcamRunning) {
+        try {
+          if (!html5QrScanner) {
+            html5QrScanner = new Html5Qrcode("reader");
+          }
+          standbyEl.style.display = 'none';
+          readerEl.style.display = 'block';
+          stopBtn.style.display = 'inline-flex';
+          
+          await html5QrScanner.start(
+            { facingMode: "environment" },
+            {
+              fps: 10,
+              qrbox: { width: 220, height: 220 }
+            },
+            (decodedText, decodedResult) => {
+              handleScannedContent(decodedText);
+            },
+            (errorMessage) => {
+              // Ignore framing errors
+            }
+          );
+          isWebcamRunning = true;
+          statusText.textContent = currentLang === 'vi' ? 'WEBCAM ĐANG HOẠT ĐỘNG - HÃY ĐƯA MÃ QR VÀO KHUNG' : 'LIVE CAMERA ACTIVE - PRESENT QR PASS';
+        } catch (err) {
+          console.error("Camera start failed:", err);
+          standbyEl.style.display = 'flex';
+          readerEl.style.display = 'none';
+          stopBtn.style.display = 'none';
+          isWebcamRunning = false;
+          alert(currentLang === 'vi' 
+            ? 'Không thể mở Camera (hãy cấp quyền truy cập webcam trong trình duyệt): ' + err 
+            : 'Unable to start camera (please allow webcam permissions): ' + err);
+        }
+      } else {
+        if (html5QrScanner) {
+          try {
+            await html5QrScanner.stop();
+          } catch(e) {}
+        }
+        isWebcamRunning = false;
+        readerEl.style.display = 'none';
+        standbyEl.style.display = 'flex';
+        stopBtn.style.display = 'none';
+        statusText.textContent = currentLang === 'vi' ? 'SẴN SÀNG KẾT NỐI WEBCAM HOẶC TẢI ẢNH VÉ' : 'READY FOR WEBCAM STREAM OR TICKET IMAGE';
+      }
+    }
+
+    // 2. File Upload / Image Scanning
+    async function handleFileUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      const file = input.files[0];
+      const statusText = document.getElementById('txtCameraReady');
+      statusText.textContent = currentLang === 'vi' ? 'ĐANG GIẢI MÃ TẬP TIN ẢNH...' : 'DECODING IMAGE FILE...';
+      
+      try {
+        const helperScanner = new Html5Qrcode("readerFileHelper");
+        const decodedText = await helperScanner.scanFile(file, true);
+        await handleScannedContent(decodedText);
+      } catch (err) {
+        console.warn("Scan file error:", err);
+        alert(currentLang === 'vi' ? 'Không tìm thấy hoặc không đọc được mã QR trong ảnh này!' : 'No valid QR code found in this image file!');
+        playFailureBuzzer();
+        statusText.textContent = currentLang === 'vi' ? 'KHÔNG ĐỌC ĐƯỢC ẢNH' : 'IMAGE SCAN FAILED';
+      } finally {
+        input.value = '';
+      }
+    }
+
+    // 3. Manual / USB Gun Input
+    async function handleManualSubmit() {
+      const input = document.getElementById('inputRawPayload');
+      const val = input.value.trim();
+      if (!val) return;
+      await handleScannedContent(val);
+      input.value = '';
+    }
+
+    // Unified Scan Handler with 2.5s Debounce
+    let isProcessingScan = false;
+    async function handleScannedContent(text) {
+      if (isProcessingScan) return;
+      isProcessingScan = true;
+      
+      try {
+        let payload;
+        try {
+          payload = JSON.parse(text);
+        } catch(e) {
+          payload = { tid: text, sig: "MANUAL_RAW", tier: "VIP", ts: Math.floor(Date.now() / 1000), nonce: "RAW" };
+        }
+        await sendCheckinRequest(payload);
+      } finally {
+        setTimeout(() => { isProcessingScan = false; }, 2500);
+      }
+    }
+
+    // Fast Simulation Helpers
     async function scanAttendeePass() {
       let payload = null;
       try {
-        // Fetch fresh QR payload from server
         const res = await fetch("/api/tickets/TK-98A4-2026/qr");
         const data = await res.json();
         payload = data.qr_payload;
@@ -314,6 +610,7 @@
       await sendCheckinRequest(tampered);
     }
 
+    // Real API Check-in Dispatcher
     async function sendCheckinRequest(payload) {
       const banner = document.getElementById('scanFeedback');
       const title = document.getElementById('feedbackTitle');
@@ -323,40 +620,44 @@
 
       banner.style.display = 'flex';
       let logs = `[${new Date().toLocaleTimeString()}] GỬI GÓI TIN ĐẾN FASTAPI BACKEND:\n`;
-      logs += `POST /api/checkin -> Ticket ID: ${payload.tid}\n\n`;
+      logs += `POST /api/checkin -> Ticket ID: ${payload.tid || 'UNKNOWN'}\n`;
+      logs += `Payload: ${JSON.stringify(payload, null, 2)}\n\n`;
 
       try {
         const res = await fetch("/api/checkin", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            tid: payload.tid,
-            tier: payload.tier,
-            ts: payload.ts,
-            nonce: payload.nonce,
-            enc: payload.enc,
-            sig: payload.sig,
+            tid: payload.tid || "TK-UNKNOWN",
+            tier: payload.tier || "VIP",
+            ts: payload.ts || Math.floor(Date.now() / 1000),
+            nonce: payload.nonce || "UNKNOWN",
+            enc: payload.enc || "",
+            sig: payload.sig || "",
             gate_id: "GATE-1A",
             staff_pin: "1234"
           })
         });
 
         const result = await res.json();
-        logs += JSON.stringify(result, null, 2);
+        logs += `KẾT QUẢ XÁC THỰC MẬT MÃ:\n` + JSON.stringify(result, null, 2);
         logEl.textContent = logs;
 
         if (res.ok && result.success) {
+          playSuccessBeep();
           banner.className = 'scan-feedback valid';
           icon.textContent = '✓';
           title.textContent = currentLang === 'vi' ? 'CHECK-IN THÀNH CÔNG' : 'CHECK-IN APPROVED';
-          sub.textContent = `${result.owner ? result.owner.full_name : 'Khách'} (${result.tier}) - ${result.gate_id}`;
+          sub.textContent = `${result.owner ? result.owner.full_name : 'Khách'} (${result.tier}) - Cổng: ${result.gate_id}`;
         } else {
+          playFailureBuzzer();
           banner.className = 'scan-feedback invalid';
           icon.textContent = result.error_code === 'FORGERY_DETECTED' ? '🚨' : '⚠️';
           title.textContent = currentLang === 'vi' ? 'TỪ CHỐI CHECK-IN' : 'CHECK-IN REJECTED';
           sub.textContent = result.message || "Không thể xác minh vé.";
         }
       } catch (err) {
+        playFailureBuzzer();
         logs += `Lỗi kết nối: ${err.message}`;
         logEl.textContent = logs;
       }
