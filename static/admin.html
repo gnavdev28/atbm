@@ -333,13 +333,21 @@
       </a>
     </div>
 
-    <!-- Role Indicator -->
-    <div class="role-selector-bar">
-      <div class="role-tab active" title="Vai trò: Quản Trị / Lab">
+    <!-- 3-Role Navigation Bar for Admin Debugging -->
+    <nav class="role-selector-bar" id="roleSelectorBar">
+      <a href="/" class="role-tab" id="tabGuest" title="Cổng Khách">
+        <span class="role-icon">🎟️</span>
+        <span class="role-label" id="lblNavGuest">Khách</span>
+      </a>
+      <a href="/gatekeeper" class="role-tab" id="tabGuard" title="Cổng Bảo Vệ">
+        <span class="role-icon">🛡️</span>
+        <span class="role-label" id="lblNavGuard">Bảo Vệ</span>
+      </a>
+      <a href="/admin" class="role-tab active" id="tabAdmin" title="Cổng Quản Trị / Lab">
         <span class="role-icon">🔬</span>
-        <span class="role-label" id="navRoleLabel">Quản Trị / Lab</span>
-      </div>
-    </div>
+        <span class="role-label" id="lblNavAdmin">Quản Trị / Lab</span>
+      </a>
+    </nav>
 
     <div class="utility-controls">
       <button class="lang-btn" onclick="toggleLanguage()" title="Chuyển ngôn ngữ / Switch Language">
@@ -674,6 +682,8 @@
     const i18n = {
       vi: {
         tagAdmin: "Quản Trị & Lab An Ninh",
+        navRoleGuest: "Khách",
+        navRoleGuard: "Bảo Vệ",
         navRoleAdmin: "Quản Trị / Lab",
         btnLogout: "Đăng Xuất",
         titleAdminLogin: "Đăng Nhập Quản Trị",
@@ -695,12 +705,12 @@
         btnTrigger2: "⏰ Thực Thi Tấn Công Replay",
         titleAttack3: "3. Tranh chấp đồng thời",
         descAttack3: "Mô phỏng N cổng quét nã request check-in cùng 1 mili-giây. Kiểm chứng Atomic Lock chống Race Condition.",
-        btnTrigger3: "💥 Bắn Luồng Đồng Thời",
-        linkBackAttendee: "← Cổng Khách Mua Vé",
-        linkGatekeeper: "Cổng Soát Vé Bảo Vệ →"
+        btnTrigger3: "💥 Bắn Luồng Đồng Thời"
       },
       en: {
         tagAdmin: "Admin Console",
+        navRoleGuest: "Attendee",
+        navRoleGuard: "Security Guard",
         navRoleAdmin: "Admin / Lab",
         btnLogout: "Logout",
         titleAdminLogin: "Administrator Authentication",
@@ -722,41 +732,42 @@
         btnTrigger2: "⏰ Execute Replay Attack",
         titleAttack3: "3. Concurrency Race Condition",
         descAttack3: "Simulate N gate terminals sending check-ins in the exact same millisecond. Tests atomic update.",
-        btnTrigger3: "💥 Fire Concurrent Threads",
-        linkBackAttendee: "← Attendee Portal",
-        linkGatekeeper: "Gatekeeper Terminal →"
+        btnTrigger3: "💥 Fire Concurrent Threads"
       }
     };
 
     function applyI18n() {
       const t = i18n[currentLang];
-      document.getElementById('tagAdmin').textContent = t.tagAdmin;
-      document.getElementById('navRoleLabel').textContent = t.navRoleAdmin;
-      document.getElementById('txtLogout').textContent = t.btnLogout;
-      document.getElementById('titleAdminLogin').textContent = t.titleAdminLogin;
-      document.getElementById('descAdminLogin').textContent = t.descAdminLogin;
-      document.getElementById('lblUser').textContent = t.lblUser;
-      document.getElementById('lblPass').textContent = t.lblPass;
-      document.getElementById('btnAdminLogin').textContent = t.btnAdminLogin;
-      document.getElementById('titleSecurityLab').textContent = t.titleSecurityLab;
-      document.getElementById('descSecurityLab').textContent = t.descSecurityLab;
-      document.getElementById('btnResetTicket').textContent = t.btnResetTicket;
-      document.getElementById('tabBtnAttacks').textContent = t.tabBtnAttacks;
-      document.getElementById('tabBtnDatabase').textContent = t.tabBtnDatabase;
-      document.getElementById('tabBtnCrypto').textContent = t.tabBtnCrypto;
-      document.getElementById('titleAttack1').textContent = t.titleAttack1;
-      document.getElementById('descAttack1').textContent = t.descAttack1;
-      document.getElementById('btnTrigger1').textContent = t.btnTrigger1;
-      document.getElementById('titleAttack2').textContent = t.titleAttack2;
-      document.getElementById('descAttack2').textContent = t.descAttack2;
-      document.getElementById('btnTrigger2').textContent = t.btnTrigger2;
-      document.getElementById('titleAttack3').textContent = t.titleAttack3;
-      document.getElementById('descAttack3').textContent = t.descAttack3;
-      document.getElementById('btnTrigger3').textContent = t.btnTrigger3;
-      document.getElementById('linkBackAttendee').textContent = t.linkBackAttendee;
-      document.getElementById('linkGatekeeper').textContent = t.linkGatekeeper;
-      document.getElementById('btnLogout').textContent = t.btnLogout;
-      document.getElementById('langIndicator').textContent = currentLang === 'vi' ? 'EN' : 'VI';
+      const setEl = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+      };
+      setEl('tagAdmin', t.tagAdmin);
+      setEl('lblNavGuest', t.navRoleGuest);
+      setEl('lblNavGuard', t.navRoleGuard);
+      setEl('lblNavAdmin', t.navRoleAdmin);
+      setEl('txtLogout', t.btnLogout);
+      setEl('titleAdminLogin', t.titleAdminLogin);
+      setEl('descAdminLogin', t.descAdminLogin);
+      setEl('lblUser', t.lblUser);
+      setEl('lblPass', t.lblPass);
+      setEl('btnAdminLogin', t.btnAdminLogin);
+      setEl('titleSecurityLab', t.titleSecurityLab);
+      setEl('descSecurityLab', t.descSecurityLab);
+      setEl('btnResetTicket', t.btnResetTicket);
+      setEl('tabBtnAttacks', t.tabBtnAttacks);
+      setEl('tabBtnDatabase', t.tabBtnDatabase);
+      setEl('tabBtnCrypto', t.tabBtnCrypto);
+      setEl('titleAttack1', t.titleAttack1);
+      setEl('descAttack1', t.descAttack1);
+      setEl('btnTrigger1', t.btnTrigger1);
+      setEl('titleAttack2', t.titleAttack2);
+      setEl('descAttack2', t.descAttack2);
+      setEl('btnTrigger2', t.btnTrigger2);
+      setEl('titleAttack3', t.titleAttack3);
+      setEl('descAttack3', t.descAttack3);
+      setEl('btnTrigger3', t.btnTrigger3);
+      setEl('langIndicator', currentLang === 'vi' ? 'EN' : 'VI');
     }
 
     function toggleLanguage() {

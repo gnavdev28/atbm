@@ -227,12 +227,20 @@
     </div>
 
     <!-- Role Indicator -->
-    <div class="role-selector-bar">
-      <div class="role-tab active" title="Vai trò: Khách">
+    <nav class="role-selector-bar" id="roleSelectorBar">
+      <a href="/" class="role-tab active" id="tabGuest" title="Cổng Khách">
         <span class="role-icon">🎟️</span>
-        <span class="role-label" id="navRoleLabel">Khách</span>
-      </div>
-    </div>
+        <span class="role-label" id="lblNavGuest">Khách</span>
+      </a>
+      <a href="/gatekeeper" class="role-tab" id="tabGuard" title="Cổng Bảo Vệ" style="display: none;">
+        <span class="role-icon">🛡️</span>
+        <span class="role-label" id="lblNavGuard">Bảo Vệ</span>
+      </a>
+      <a href="/admin" class="role-tab" id="tabAdmin" title="Cổng Quản Trị / Lab" style="display: none;">
+        <span class="role-icon">🔬</span>
+        <span class="role-label" id="lblNavAdmin">Quản Trị / Lab</span>
+      </a>
+    </nav>
 
     <div class="utility-controls">
       <button class="lang-btn" onclick="toggleLanguage()" title="Chuyển ngôn ngữ / Switch Language">
@@ -351,18 +359,28 @@
 
     function applyI18n() {
       const t = i18n[currentLang];
-      document.getElementById('tagPortal').textContent = t.tagPortal;
-      document.getElementById('navRoleLabel').textContent = t.navRoleGuest;
-      document.getElementById('txtLogout').textContent = t.btnLogout;
-      document.getElementById('txtVenue').textContent = t.venue;
-      document.getElementById('lblRotating').textContent = t.rotating;
-      document.getElementById('lblOwner').textContent = t.owner;
-      document.getElementById('lblStatus').textContent = t.status;
-      document.getElementById('lblGate').textContent = t.gate;
-      document.getElementById('lblTicketId').textContent = t.ticketId;
-      document.getElementById('btnDownloadQR').textContent = t.btnDownloadQR;
-      document.getElementById('btnForceRotate').textContent = t.btnForceRotate;
-      document.getElementById('langIndicator').textContent = currentLang === 'vi' ? 'EN' : 'VI';
+      const setEl = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+      };
+      setEl('tagPortal', t.tagPortal);
+      setEl('lblNavGuest', t.navRoleGuest);
+      setEl('lblNavGuard', "Bảo Vệ");
+      setEl('lblNavAdmin', "Quản Trị / Lab");
+      if (currentLang === 'en') {
+        setEl('lblNavGuard', "Security Guard");
+        setEl('lblNavAdmin', "Admin / Lab");
+      }
+      setEl('txtLogout', t.btnLogout);
+      setEl('txtVenue', t.venue);
+      setEl('lblRotating', t.rotating);
+      setEl('lblOwner', t.owner);
+      setEl('lblStatus', t.status);
+      setEl('lblGate', t.gate);
+      setEl('lblTicketId', t.ticketId);
+      setEl('btnDownloadQR', t.btnDownloadQR);
+      setEl('btnForceRotate', t.btnForceRotate);
+      setEl('langIndicator', currentLang === 'vi' ? 'EN' : 'VI');
 
       // Cập nhật trạng thái vé ngay khi đổi ngôn ngữ
       const stEl = document.getElementById('ticketStatus');
@@ -580,12 +598,12 @@
         window.location.replace('/gatekeeper');
         return false;
       }
-      // If role is guest, hide guard and admin tabs!
-      if (user.role === 'guest') {
+      // If role is admin, show all 3 roles so admin can debug freely!
+      if (user.role === 'admin') {
         const tabGuard = document.getElementById('tabGuard');
         const tabAdmin = document.getElementById('tabAdmin');
-        if (tabGuard) tabGuard.style.display = 'none';
-        if (tabAdmin) tabAdmin.style.display = 'none';
+        if (tabGuard) tabGuard.style.display = 'inline-flex';
+        if (tabAdmin) tabAdmin.style.display = 'inline-flex';
       }
       return true;
     }
