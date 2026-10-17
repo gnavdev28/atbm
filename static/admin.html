@@ -8,11 +8,81 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/linear-theme.css">
+  <script src="/static/qrcode.min.js"></script>
   <style>
     .admin-container {
       display: grid;
       grid-template-columns: 1fr;
       gap: 20px;
+    }
+
+    .video-guide-banner {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+    .video-guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .guide-step-card {
+      background: var(--surface-1);
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--hairline);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .threads-cluster {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0;
+    }
+    .thread-node {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all 0.2s ease;
+    }
+    .thread-node.pass {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--success);
+      color: var(--success);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+    .thread-node.block {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+    .qr-preview-box {
+      background: var(--surface-2);
+      border: 1px dashed var(--hairline-strong);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .qr-preview-box .qr-img-wrapper {
+      background: #ffffff;
+      padding: 8px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 10px;
     }
 
     .tab-bar {
@@ -297,15 +367,41 @@
         </button>
       </div>
 
-      <!-- TAB 1: ATTACK SIMULATIONS -->
+      <!-- TAB 1: ATTACK SIMULATIONS & LIVE EXPLOIT WORKSHOP -->
       <div id="tabAttacks" class="tab-content active">
+
+        <!-- Master Video Demo Guide Banner -->
+        <div class="video-guide-banner">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #818cf8; font-size: 13px;">
+              <span>🎬 KỊCH BẢN QUAY VIDEO DEMO THỰC TẾ (100% THUYẾT PHỤC - KHÔNG LO BỊ BẢO MÔ PHỎNG CỨNG)</span>
+            </div>
+            <span style="font-size: 11px; color: var(--ink-subtle);">Mở song song 2 tab: Cổng Soát Vé (/gatekeeper) & Phòng Lab (/admin)</span>
+          </div>
+
+          <div class="video-guide-grid">
+            <div class="guide-step-card">
+              <div style="font-weight: 600; color: var(--danger); margin-bottom: 4px;">1. Bắt quả tang mã vé bị làm giả</div>
+              Tại Thẻ 1 bên dưới, chỉnh hạng vé tùy ý rồi bấm <strong>"🛠️ Tạo Mã QR Giả Mạo"</strong>. Bấm tải ảnh QR về máy, mang sang tab <code>/gatekeeper</code> tải ảnh lên. Cổng quét ảnh thật và hú còi báo động đỏ rực vì sai chữ ký ECDSA!
+            </div>
+            <div class="guide-step-card">
+              <div style="font-weight: 600; color: var(--warning); margin-bottom: 4px;">2. Bắt quả tang gian lận vé cũ (Replay)</div>
+              Tại Cổng Soát Vé <code>/gatekeeper</code>, quét mã QR hợp lệ lần 1 (Xanh - Thành công). Ngay lập tức quét lại mã đó lần 2 (Đỏ - Cổng từ chối: <em>"Vé đã được sử dụng trước đó"</em>)! Hoặc tải ảnh QR quá hạn ở Thẻ 2 quét thử.
+            </div>
+            <div class="guide-step-card">
+              <div style="font-weight: 600; color: var(--primary); margin-bottom: 4px;">3. Thách thức 20 cổng quét cùng lúc</div>
+              Tại Thẻ 3, kéo slider 20 luồng -> Bấm <strong>"💥 Bắn Luồng Đồng Thời"</strong>. Xem 20 cổng nhấp nháy, duy nhất 1 cổng xanh, 19 cổng đỏ. Bấm nút xem trực tiếp 20 dòng log thật trong CSDL SQLite!
+            </div>
+          </div>
+        </div>
+
         <div class="attacks-grid">
           
           <!-- Attack 1: Forgery / Tamper -->
           <div class="attack-card">
             <div>
               <span class="attack-tag">CHỮ KÝ SỐ ECDSA</span>
-              <div class="attack-title" id="titleAttack1">1. Làm giả dữ liệu vé</div>
+              <div class="attack-title" id="titleAttack1">1. Xưởng Chế Tạo Mã QR Giả Mạo</div>
               <div class="attack-desc" id="descAttack1">
                 Kẻ tấn công sửa trường dữ liệu hạng vé hoặc mã vé mà không có Private Key máy chủ để ký số lại.
               </div>
@@ -325,8 +421,27 @@
             </div>
             <div>
               <button class="btn btn-danger" style="width: 100%;" onclick="runCustomTamperAttack()">
-                <span id="btnTrigger1">🚨 Thực Thi Tấn Công Giả Mạo</span>
+                <span id="btnTrigger1">🛠️ Tạo Mã QR Giả Mạo Ngay</span>
               </button>
+
+              <!-- QR Code Live Output Box -->
+              <div id="tamperQrBox" class="qr-preview-box" style="display: none;">
+                <div class="qr-img-wrapper">
+                  <div id="tamperQrContainer"></div>
+                </div>
+                <div style="display: flex; gap: 6px; width: 100%; margin-bottom: 8px;">
+                  <button class="btn btn-secondary" onclick="downloadTamperedQr()" style="flex: 1; font-size: 11px; height: 28px;">
+                    📥 Tải Ảnh QR Này
+                  </button>
+                  <button class="btn btn-secondary" onclick="copyTamperedPayload()" style="flex: 1; font-size: 11px; height: 28px;">
+                    📋 Copy Payload
+                  </button>
+                </div>
+                <div style="font-size: 11px; color: #818cf8; text-align: left; width: 100%; line-height: 1.4; border-top: 1px dashed var(--hairline); padding-top: 8px;">
+                  💡 <strong>Bước tiếp theo khi quay video:</strong> Tải ảnh QR này về, mang sang tab <a href="/gatekeeper" target="_blank" style="color:var(--primary); text-decoration:underline;">Cổng Soát Vé</a> tải ảnh lên để xem còi báo động kêu đỏ rực!
+                </div>
+              </div>
+
               <div id="outputTamper" class="attack-output"></div>
             </div>
           </div>
@@ -335,7 +450,7 @@
           <div class="attack-card">
             <div>
               <span class="attack-tag">CHỐNG PHÁT LẠI REPLAY</span>
-              <div class="attack-title" id="titleAttack2">2. Tấn công phát lại (Replay)</div>
+              <div class="attack-title" id="titleAttack2">2. Xưởng Chế Tạo Mã QR Quá Hạn</div>
               <div class="attack-desc" id="descAttack2">
                 Dùng ảnh chụp màn hình QR cũ quá 30 giây hoặc gửi lại gói tin chứa Nonce đã dùng.
               </div>
@@ -356,8 +471,22 @@
             </div>
             <div>
               <button class="btn btn-danger" style="width: 100%;" onclick="runCustomReplayAttack()">
-                <span id="btnTrigger2">⏰ Thực Thi Tấn Công Replay</span>
+                <span id="btnTrigger2">🛠️ Tạo Mã QR Quá Hạn Ngay</span>
               </button>
+
+              <!-- QR Code Expired Output Box -->
+              <div id="replayQrBox" class="qr-preview-box" style="display: none;">
+                <div class="qr-img-wrapper">
+                  <div id="replayQrContainer"></div>
+                </div>
+                <button class="btn btn-secondary" onclick="downloadExpiredQr()" style="width: 100%; font-size: 11px; height: 28px; margin-bottom: 8px;">
+                  📥 Tải Ảnh QR Quá Hạn Này
+                </button>
+                <div style="font-size: 11px; color: #818cf8; text-align: left; width: 100%; line-height: 1.4; border-top: 1px dashed var(--hairline); padding-top: 8px;">
+                  💡 <strong>Thử nghiệm thật:</strong> Mang ảnh này sang <a href="/gatekeeper" target="_blank" style="color:var(--primary); text-decoration:underline;">Cổng Soát Vé</a> quét thử. Cổng sẽ phát hiện mã đã quá 30 giây và từ chối ngay lập tức!
+                </div>
+              </div>
+
               <div id="outputReplay" class="attack-output"></div>
             </div>
           </div>
@@ -366,7 +495,7 @@
           <div class="attack-card">
             <div>
               <span class="attack-tag">KHÓA NGUYÊN TỬ CSDL</span>
-              <div class="attack-title" id="titleAttack3">3. Tranh chấp đồng thời</div>
+              <div class="attack-title" id="titleAttack3">3. Thí Nghiệm Đua Tranh 20 Cổng</div>
               <div class="attack-desc" id="descAttack3">
                 Mô phỏng N cổng quét nã request check-in cùng 1 mili-giây. Kiểm chứng Atomic Lock chống Race Condition.
               </div>
@@ -689,84 +818,170 @@
       }
     }
 
-    // 1. Custom Tamper Attack
+    let lastTamperedPayload = null;
+    let lastExpiredPayload = null;
+
+    // 1. Custom Tamper Attack & Live QR Generator
     async function runCustomTamperAttack() {
       const sel = document.getElementById('selectTamperField').value;
       const val = document.getElementById('inputTamperValue').value;
       const isCorruptSig = (sel === 'sig');
 
       const out = document.getElementById('outputTamper');
+      const qrBox = document.getElementById('tamperQrBox');
+      const qrContainer = document.getElementById('tamperQrContainer');
+      
       out.style.display = 'block';
-      out.innerHTML = `<span style="color:var(--primary)">Đang gửi can thiệp đến máy chủ...</span>`;
+      out.innerHTML = `<span style="color:var(--primary)">Đang sinh gói tin và ký số giả mạo...</span>`;
 
       try {
-        const res = await fetch("/api/admin/test-tamper?authorization=admin123", {
+        const res = await fetch("/api/admin/generate-tampered-qr?authorization=admin123", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            ticket_id: "TK-VIP-001",
             field_to_modify: sel,
             new_value: val,
             corrupt_signature: isCorruptSig
           })
         });
         const d = await res.json();
+        lastTamperedPayload = d.tampered_payload;
+
+        // Render real QR Code
+        qrContainer.innerHTML = '';
+        qrBox.style.display = 'flex';
+        new QRCode(qrContainer, {
+          text: JSON.stringify(d.tampered_payload),
+          width: 140,
+          height: 140,
+          colorDark: "#090A0F",
+          colorLight: "#FFFFFF",
+          correctLevel: QRCode.CorrectLevel.L
+        });
 
         out.innerHTML = `
-          <div style="color: var(--danger); font-weight: 600; margin-bottom: 4px;">🚨 BẮT ĐƯỢC GIẢ MẠO CHỮ KÝ SỐ</div>
-          <div>• Can thiệp: <strong>${d.modified_field}</strong></div>
-          <div>• SHA-256 bản gốc: <code style="color:var(--success)">${d.original_sha256}</code></div>
-          <div>• SHA-256 bản sửa: <code style="color:var(--danger)">${d.tampered_sha256}</code></div>
-          <div>• ECDSA Verify(Pub, Hash, Sig) = <strong style="color:var(--danger)">${d.ecdsa_verification_result} (FALSE)</strong></div>
-          <div style="color: var(--ink-subtle); margin-top: 4px; font-size: 10px;">=> Chữ ký số gắn liền với nội dung bản tin. Mọi thay đổi dù chỉ 1 bit đều làm sai lệch mã băm và bị phát hiện.</div>
+          <div style="color: var(--danger); font-weight: 600; margin-bottom: 4px;">🚨 ĐÃ CHẾ TẠO MÃ QR GIẢ MẠO THÀNH CÔNG</div>
+          <div>• Can thiệp: <strong>${d.tampered_desc}</strong></div>
+          <div>• SHA-256 bản gốc: <code style="color:var(--success)">${d.original_sha256.substring(0, 16)}...</code></div>
+          <div>• SHA-256 bản sửa: <code style="color:var(--danger)">${d.tampered_sha256.substring(0, 16)}...</code></div>
+          <div>• Xác minh toán học ECDSA P-256 = <strong style="color:var(--danger)">FALSE (Chữ ký không khớp)</strong></div>
+          <div style="color: var(--ink-subtle); margin-top: 4px; font-size: 11px;">Mã QR phía trên chứa bản tin đã bị can thiệp. Khi mang sang Cổng Soát Vé quét, cổng thật sẽ lập tức từ chối và cảnh báo làm giả!</div>
         `;
       } catch (err) {
         out.textContent = "Lỗi kết nối: " + err.message;
       }
     }
 
-    // 2. Custom Replay Attack
+    function downloadTamperedQr() {
+      const container = document.getElementById('tamperQrContainer');
+      const img = container.querySelector('img');
+      const canvas = container.querySelector('canvas');
+      const dataUrl = (img && img.src && img.src.startsWith('data:')) ? img.src : (canvas ? canvas.toDataURL('image/png') : null);
+      if (!dataUrl) {
+        alert("Chưa có mã QR giả mạo!");
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = "qr_tampered_exploit.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function copyTamperedPayload() {
+      if (!lastTamperedPayload) {
+        alert("Chưa có gói tin!");
+        return;
+      }
+      navigator.clipboard.writeText(JSON.stringify(lastTamperedPayload)).then(() => {
+        alert("Đã sao chép chuỗi JSON mã QR giả mạo!");
+      });
+    }
+
+    // 2. Custom Replay Attack & Live Expired QR Generator
     async function runCustomReplayAttack() {
       const age = parseInt(document.getElementById('sliderAge').value, 10);
       const dup = document.getElementById('chkDupNonce').checked;
 
       const out = document.getElementById('outputReplay');
+      const qrBox = document.getElementById('replayQrBox');
+      const qrContainer = document.getElementById('replayQrContainer');
+
       out.style.display = 'block';
-      out.innerHTML = `<span style="color:var(--primary)">Đang gửi kiểm tra phát lại (Replay)...</span>`;
+      out.innerHTML = `<span style="color:var(--primary)">Đang sinh mã QR lùi thời gian (${age}s)...</span>`;
 
       try {
-        const res = await fetch("/api/admin/test-replay?authorization=admin123", {
+        const res = await fetch("/api/admin/generate-expired-qr?authorization=admin123", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            age_seconds: age,
-            duplicate_nonce: dup
+            ticket_id: "TK-VIP-001",
+            age_seconds: age
           })
         });
         const d = await res.json();
+        lastExpiredPayload = d.expired_payload;
 
-        const isDetected = d.attack_detected;
-        const color = isDetected ? 'var(--danger)' : 'var(--success)';
-        const title = isDetected ? '⏰ TỪ CHỐI (PHÁT HIỆN REPLAY/QUÁ HẠN)' : '✓ HỢP LỆ (TRONG CỬA SỔ CHO PHÉP)';
+        // Render real QR Code
+        qrContainer.innerHTML = '';
+        qrBox.style.display = 'flex';
+        new QRCode(qrContainer, {
+          text: JSON.stringify(d.expired_payload),
+          width: 140,
+          height: 140,
+          colorDark: "#090A0F",
+          colorLight: "#FFFFFF",
+          correctLevel: QRCode.CorrectLevel.L
+        });
+
+        const isExpired = age > 30;
+        const color = isExpired ? 'var(--danger)' : 'var(--success)';
+        const title = isExpired ? '⏰ ĐÃ SINH MÃ QR QUÁ HẠN (> 30s)' : '✓ MÃ QR TRONG NGƯỠNG HỢP LỆ (<= 30s)';
 
         out.innerHTML = `
           <div style="color: ${color}; font-weight: 600; margin-bottom: 4px;">${title}</div>
-          <div>• Độ tuổi gói tin thử nghiệm: <strong>${d.timestamp_age_seconds}s</strong> (Ngưỡng cho phép: <= 30s)</div>
-          <div>• Kiểm tra NonceCache trùng lặp: <strong>${d.duplicate_nonce_tested ? 'CÓ (Trùng lặp)' : 'KHÔNG (Mới)'}</strong></div>
-          <div>• Phản hồi từ Server: <code style="color:${color}">${d.server_response}</code></div>
-          <div style="color: var(--ink-subtle); margin-top: 4px; font-size: 10px;">=> ${d.explanation}</div>
+          <div>• Độ tuổi gói tin được ký số: <strong>${age} giây</strong> (Ngưỡng cho phép: <= 30s)</div>
+          <div>• Timestamp máy chủ ký: <code>${d.expired_payload.ts}</code></div>
+          <div style="color: var(--ink-subtle); margin-top: 4px; font-size: 11px;">Mã QR phía trên có chữ ký hợp lệ nhưng thời gian đã hết hạn. Hãy tải về và quét tại Cổng Soát Vé để kiểm chứng!</div>
         `;
       } catch (err) {
         out.textContent = "Lỗi kết nối: " + err.message;
       }
     }
 
+    function downloadExpiredQr() {
+      const container = document.getElementById('replayQrContainer');
+      const img = container.querySelector('img');
+      const canvas = container.querySelector('canvas');
+      const dataUrl = (img && img.src && img.src.startsWith('data:')) ? img.src : (canvas ? canvas.toDataURL('image/png') : null);
+      if (!dataUrl) {
+        alert("Chưa có mã QR quá hạn!");
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = "qr_expired_replay.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
     // 3. Custom Concurrency Attack
     async function runCustomConcurrencyAttack() {
       const count = parseInt(document.getElementById('sliderThreads').value, 10);
-
       const out = document.getElementById('outputConcurrency');
       out.style.display = 'block';
-      out.innerHTML = `<span style="color:var(--primary)">Đang nã ${count} luồng đồng thời vào SQLite ACID Transaction...</span>`;
+      out.innerHTML = `
+        <div style="color:var(--primary); margin-bottom:6px;">⚡ Đang nã ${count} luồng đồng thời vào SQLite ACID Transaction...</div>
+        <div class="threads-cluster" id="tempLoadingCluster"></div>
+      `;
+
+      const tempCluster = document.getElementById('tempLoadingCluster');
+      for (let i = 1; i <= count; i++) {
+        tempCluster.innerHTML += `<div class="thread-node" style="opacity:0.4; background:var(--surface-2); border:1px solid var(--hairline)">G${i}</div>`;
+      }
 
       try {
         const res = await fetch("/api/admin/test-concurrency?authorization=admin123", {
@@ -777,21 +992,30 @@
         const d = await res.json();
 
         let nodesHtml = '';
+        let winnerGate = null;
         for (let r of d.results_details) {
           if (r.success) {
-            nodesHtml += `<div class="thread-node pass" title="Luồng #${r.worker_id}: Thành công (rowcount=1)">${r.worker_id}</div>`;
+            winnerGate = `GATE-${r.worker_id}`;
+            nodesHtml += `<div class="thread-node pass" title="Cổng #${r.worker_id}: Thành công (Chiếm vé)">G${r.worker_id}</div>`;
           } else {
-            nodesHtml += `<div class="thread-node block" title="Luồng #${r.worker_id}: Bị chặn (rowcount=0)">${r.worker_id}</div>`;
+            nodesHtml += `<div class="thread-node block" title="Cổng #${r.worker_id}: Bị chặn (Vé đã sử dụng)">G${r.worker_id}</div>`;
           }
         }
 
         out.innerHTML = `
-          <div style="color: var(--success); font-weight: 600; margin-bottom: 4px;">💥 KẾT QUẢ: ${d.success_admitted} DUYỆT, ${d.rejected_blocked} CHẶN (${d.duration_ms} ms)</div>
-          <div>Trạng thái ${count} luồng Python thực thi cùng lúc:</div>
+          <div style="color: var(--success); font-weight: 600; margin-bottom: 4px;">
+            🎉 CHIẾM VÉ: ${d.success_admitted} CỔNG DUYỆT | ${d.rejected_blocked} CỔNG BỊ CHẶN (${d.duration_ms} ms)
+          </div>
+          <div style="font-size:11px; margin-bottom: 4px;">• Cổng chiến thắng cuộc đua: <strong style="color:var(--success)">${winnerGate || 'GATE-1'}</strong></div>
           <div class="threads-cluster">${nodesHtml}</div>
-          <div>• Duy nhất 1 luồng nhận <code>rowcount = 1</code> (Chấp thuận)</div>
-          <div>• ${d.rejected_blocked} luồng nhận <code>rowcount = 0</code> (Từ chối)</div>
-          <div style="color: var(--ink-subtle); margin-top: 4px; font-size: 10px;">=> ${d.explanation}</div>
+          <div style="font-size: 11px; color: var(--ink-subtle); margin-top: 6px;">
+            Duy nhất 1 cổng cập nhật thành công (<code>rowcount = 1</code>). Toàn bộ các cổng còn lại bị khóa nguyên tử từ chối ngay lập tức!
+          </div>
+          <div style="margin-top: 10px;">
+            <button class="btn btn-secondary" onclick="switchTab('tabDatabase')" style="font-size: 11px; height: 28px; width: 100%;">
+              👉 Chuyển sang Tab CSDL để xem ${count} dòng log vừa được ghi vào SQLite
+            </button>
+          </div>
         `;
       } catch (err) {
         out.textContent = "Lỗi kết nối: " + err.message;

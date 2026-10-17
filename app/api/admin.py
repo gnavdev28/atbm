@@ -3,6 +3,7 @@ import time
 import json
 import hashlib
 import base64
+import os
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, Header, Query
 from pydantic import BaseModel
@@ -244,3 +245,94 @@ def crypto_lab_decrypt(req: CryptoDecryptRequest, authorization: str = "admin123
             "decrypted_data": None,
             "message": f"Giải mã thất bại hoặc dữ liệu bị sửa đổi (MAC Tag Invalid): {str(e)}"
         }
+
+class GenerateTamperedQrRequest(BaseModel):
+    ticket_id: Optional[str] = "TK-VIP-001"
+    field_to_modify: str = "tier"
+    new_value: str = "SUPER_VIP_HACKED"
+    corrupt_signature: bool = False
+
+@router.post("/generate-tampered-qr")
+def generate_tampered_qr(req: Optional[GenerateTamperedQrRequest] = None, authorization: str = "admin123"):
+    """
+    Sinh gói tin và mã QR giả mạo thật sự để người dùng tải về quét tại Cổng Soát Vé.
+    """
+    verify_admin_auth(authorization)
+    tid = req.ticket_id if (req and req.ticket_id) else "TK-VIP-001"
+    field = req.field_to_modify if req else "tier"
+    new_val = req.new_value if req else "SUPER_VIP_HACKED"
+    corrupt_sig = req.corrupt_signature if req else False
+
+    ticket = app_state.db.get_ticket(tid)
+    enc_data = ticket["owner_name_enc"] if ticket else "ENC_DUMMY_DATA"
+    tier = ticket["tier"] if ticket else "VIP PASS"
+
+    original_payload = {
+        "tid": tid,
+        "tier": tier,
+        "ts": int(time.time()),
+        "nonce": os.urandom(8).hex(),
+        "enc": enc_data
+    }
+    valid_sig = app_state.crypto.sign_payload(original_payload, app_state.priv_key_pem)
+
+    tampered_payload = dict(original_payload)
+    if corrupt_sig:
+        tampered_sig = valid_sig[:-4] + "AAAA" if len(valid_sig) > 4 else "BAD_SIG_123"
+        tampered_desc = "Cố tình làm sai lệch 2 byte cuối chữ ký số ECDSA"
+    else:
+        tampered_payload[field] = new_val
+        tampered_sig = valid_sig
+        tampered_desc = f"Sửa trường '{field}' thành '{new_val}' nhưng giữ chữ ký cũ"
+
+    tampered_payload["sig"] = tampered_sig
+
+    hash_orig = hashlib.sha256(json.dumps(original_payload, sort_keys=True).encode()).hexdigest()
+    hash_tamp = hashlib.sha256(json.dumps({k: v for k, v in tampered_payload.items() if k != "sig"}, sort_keys=True).encode()).hexdigest()
+    is_valid = app_state.crypto.verify_signature({k: v for k, v in tampered_payload.items() if k != "sig"}, tampered_sig, app_state.pub_key_pem)
+
+    return {
+        "status": "success",
+        "tampered_payload": tampered_payload,
+        "original_payload": original_payload,
+        "tampered_desc": tampered_desc,
+        "tampered_json": json.dumps(tampered_payload),
+        "original_sha256": hash_orig,
+        "tampered_sha256": hash_tamp,
+        "ecdsa_valid": is_valid
+    }
+
+class GenerateExpiredQrRequest(BaseModel):
+    ticket_id: Optional[str] = "TK-VIP-001"
+    age_seconds: int = 60
+
+@router.post("/generate-expired-qr")
+def generate_expired_qr(req: Optional[GenerateExpiredQrRequest] = None, authorization: str = "admin123"):
+    """
+    Sinh mã QR hợp lệ nhưng bị lùi timestamp về quá khứ (vượt quá 30 giây TTL).
+    """
+    verify_admin_auth(authorization)
+    tid = req.ticket_id if (req and req.ticket_id) else "TK-VIP-001"
+    age = req.age_seconds if req else 60
+
+    ticket = app_state.db.get_ticket(tid)
+    enc_data = ticket["owner_name_enc"] if ticket else "ENC_DUMMY_DATA"
+    tier = ticket["tier"] if ticket else "VIP PASS"
+
+    expired_payload = {
+        "tid": tid,
+        "tier": tier,
+        "ts": int(time.time()) - age,
+        "nonce": os.urandom(8).hex(),
+        "enc": enc_data
+    }
+    sig = app_state.crypto.sign_payload(expired_payload, app_state.priv_key_pem)
+    expired_payload["sig"] = sig
+
+    return {
+        "status": "success",
+        "expired_payload": expired_payload,
+        "age_seconds": age,
+        "expired_json": json.dumps(expired_payload)
+    }
+
