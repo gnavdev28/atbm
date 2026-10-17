@@ -150,18 +150,18 @@
     </div>
 
     <!-- 3-Level Role Selector -->
-    <nav class="role-selector-bar">
-      <a href="/" class="role-tab" title="Cấp 1: Người tham dự sự kiện">
+    <nav class="role-selector-bar" id="roleSelectorBar">
+      <a href="/" class="role-tab" id="tabGuest" title="Cấp 1: Người tham dự sự kiện">
         <span class="role-num">1</span>
         <span class="role-icon">🎟️</span>
         <span class="role-label">Khách</span>
       </a>
-      <a href="/gatekeeper" class="role-tab active" title="Cấp 2: Nhân viên an ninh cổng soát vé">
+      <a href="/gatekeeper" class="role-tab active" id="tabGuard" title="Cấp 2: Nhân viên an ninh cổng soát vé">
         <span class="role-num">2</span>
         <span class="role-icon">🛡️</span>
         <span class="role-label">Bảo Vệ</span>
       </a>
-      <a href="/admin" class="role-tab" title="Cấp 3: Quản trị viên & Phòng thí nghiệm">
+      <a href="/admin" class="role-tab" id="tabAdmin" title="Cấp 3: Quản trị viên & Phòng thí nghiệm">
         <span class="role-num">3</span>
         <span class="role-icon">🔬</span>
         <span class="role-label">Quản Trị / Lab</span>
@@ -428,6 +428,29 @@
       }
     }
 
+    function checkGatekeeperAuth() {
+      const user = JSON.parse(localStorage.getItem('securepass_user') || 'null');
+      if (!user || !user.role) {
+        window.location.replace('/login');
+        return false;
+      }
+      if (user.role === 'guest') {
+        alert('Tài khoản Khách không có quyền truy cập máy quét bảo vệ!');
+        window.location.replace('/');
+        return false;
+      }
+      // If role is guard, hide Khách and Admin tabs!
+      if (user.role === 'guard') {
+        const tabGuest = document.getElementById('tabGuest');
+        const tabAdmin = document.getElementById('tabAdmin');
+        if (tabGuest) tabGuest.style.display = 'none';
+        if (tabAdmin) tabAdmin.style.display = 'none';
+      }
+      // Auto authenticate staff since they logged in via portal
+      sessionStorage.setItem('staff_auth', 'true');
+      return true;
+    }
+
     function loginStaff() {
       const pin = document.getElementById('inputPin').value;
       if (pin === '1234') {
@@ -442,8 +465,9 @@
       if (isWebcamRunning) {
         toggleWebcamScanner();
       }
-      sessionStorage.removeItem('staff_auth');
-      checkAuth();
+      localStorage.removeItem('securepass_user');
+      sessionStorage.clear();
+      window.location.href = '/login';
     }
 
     function checkAuth() {
@@ -632,6 +656,7 @@
     }
 
     window.onload = function() {
+      if (!checkGatekeeperAuth()) return;
       applyI18n();
       checkAuth();
     };

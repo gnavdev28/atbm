@@ -141,3 +141,28 @@ def test_reset_ticket_endpoint():
     t = client.get(f"/api/tickets/{tid}").json()
     assert t["status"] == "ACTIVE"
 
+def test_auth_3_levels():
+    """Kiểm tra đăng nhập xác thực 3 cấp độ: Khách, Bảo Vệ, Admin"""
+    # 1. Khách
+    r_guest = client.post("/api/auth/login", json={"username": "khach", "password": "khach123"})
+    assert r_guest.status_code == 200
+    assert r_guest.json()["role"] == "guest"
+    assert r_guest.json()["redirect_url"] == "/"
+
+    # 2. Bảo vệ
+    r_guard = client.post("/api/auth/login", json={"username": "baove", "password": "1234"})
+    assert r_guard.status_code == 200
+    assert r_guard.json()["role"] == "guard"
+    assert r_guard.json()["redirect_url"] == "/gatekeeper"
+
+    # 3. Admin
+    r_admin = client.post("/api/auth/login", json={"username": "admin", "password": "admin123"})
+    assert r_admin.status_code == 200
+    assert r_admin.json()["role"] == "admin"
+    assert r_admin.json()["redirect_url"] == "/admin"
+
+    # 4. Sai mật khẩu -> 401
+    r_fail = client.post("/api/auth/login", json={"username": "admin", "password": "wrongpassword"})
+    assert r_fail.status_code == 401
+
+

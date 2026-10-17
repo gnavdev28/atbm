@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Nhập Hệ Thống - SecurePass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/linear-theme.css">
+  <style>
+    .login-container {
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .login-hero {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-hero h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .login-hero p {
+      font-size: 14px;
+      color: var(--ink-subtle);
+      max-width: 580px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    .login-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 820px) {
+      .login-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Form card */
+    .form-card {
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .form-header {
+      margin-bottom: 22px;
+    }
+
+    .form-header h2 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .form-header p {
+      font-size: 12px;
+      color: var(--ink-subtle);
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      margin-bottom: 6px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      height: 40px;
+      background: var(--surface-2);
+      border: 1px solid var(--hairline);
+      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 13px;
+      color: var(--ink);
+      font-family: inherit;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+    }
+
+    .input-wrap input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--surface-1);
+      box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.15);
+    }
+
+    .login-btn {
+      width: 100%;
+      height: 42px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      margin-top: 20px;
+    }
+
+    .login-btn:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 4px 12px rgba(94, 106, 210, 0.3);
+    }
+
+    .login-alert {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-bottom: 16px;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .login-alert.error {
+      background: rgba(248, 113, 113, 0.12);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      color: var(--danger);
+    }
+
+    /* Demo Level Selector Cards */
+    .demo-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .demo-title-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .demo-title-wrap h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .demo-badge-sub {
+      font-size: 11px;
+      color: var(--ink-subtle);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .role-card {
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 16px;
+      align-items: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .role-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      background: var(--surface-2);
+    }
+
+    .role-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      background: var(--surface-3);
+      border: 1px solid var(--hairline);
+    }
+
+    .role-card-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .level-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .tag-guest { background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.25); }
+    .tag-guard { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.25); }
+    .tag-admin { background: rgba(168, 85, 247, 0.15); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.25); }
+
+    .role-card-desc {
+      font-size: 12px;
+      color: var(--ink-subtle);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .role-card-creds {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--ink-muted);
+      display: flex;
+      gap: 12px;
+    }
+
+    .role-card-creds span {
+      background: var(--surface-3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--hairline);
+    }
+
+    .quick-login-btn {
+      height: 34px;
+      padding: 0 14px;
+      background: var(--surface-3);
+      border: 1px solid var(--hairline);
+      color: var(--ink);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .role-card:hover .quick-login-btn {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    .active-session-banner {
+      background: rgba(94, 106, 210, 0.12);
+      border: 1px solid rgba(94, 106, 210, 0.3);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-section">
+      <div class="brand-logo">Q</div>
+      <a href="/login" class="brand-name">
+        <span>SecurePass</span>
+        <span class="badge-tag">Cổng Đăng Nhập Hệ Thống</span>
+      </a>
+    </div>
+
+    <div class="utility-controls">
+      <button class="lang-btn" onclick="toggleLanguage()" title="Chuyển ngôn ngữ / Switch Language">
+        <span id="langIndicator">EN</span>
+      </button>
+      <button class="icon-btn" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối">
+        <span id="themeIcon">☀️</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="login-container">
+      
+      <!-- Already logged in notice if any -->
+      <div id="activeSessionBanner" class="active-session-banner">
+        <div>
+          <span style="font-size: 13px; color: var(--ink);">Bạn đang đăng nhập: <strong id="loggedUserName" style="color: var(--primary);">...</strong></span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-primary" onclick="proceedToRole()" style="height: 30px; font-size: 12px;">Vào Giao Diện Ngay →</button>
+          <button class="btn btn-secondary" onclick="logoutNow()" style="height: 30px; font-size: 12px;">Đăng Xuất</button>
+        </div>
+      </div>
+
+      <div class="login-hero">
+        <h1>Xác Thực Phân Quyền Hệ Thống</h1>
+        <p>Hệ thống hỗ trợ 3 cấp độ tài khoản độc lập với phạm vi quyền hạn và giao diện kiểm thử riêng biệt.</p>
+      </div>
+
+      <div class="login-grid">
+        
+        <!-- Standard Login Form -->
+        <div class="form-card">
+          <div class="form-header">
+            <h2>🔐 Đăng Nhập</h2>
+            <p>Nhập thông tin tài khoản được cấp</p>
+          </div>
+
+          <div id="loginAlert" class="login-alert error"></div>
+
+          <form id="loginForm" onsubmit="handleManualLogin(event)">
+            <div class="input-group">
+              <label class="input-label" for="username">Tên Đăng Nhập</label>
+              <div class="input-wrap">
+                <input type="text" id="username" placeholder="khach / baove / admin" required autocomplete="username">
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label" for="password">Mật Khẩu / Mã PIN</label>
+              <div class="input-wrap">
+                <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+              </div>
+            </div>
+
+            <button type="submit" class="login-btn" id="btnSubmitLogin">
+              <span>Đăng Nhập Vào Hệ Thống</span>
+              <span>→</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- 3-Level Demo Quick Login -->
+        <div class="demo-panel">
+          <div class="demo-title-wrap">
+            <h3>⚡ Đăng Nhập Nhanh Theo Cấp Độ (1-Click Demo)</h3>
+            <span class="demo-badge-sub">Môi trường kiểm thử</span>
+          </div>
+
+          <!-- Level 1: Attendee / Guest -->
+          <div class="role-card" onclick="quickLogin('khach', 'khach123')">
+            <div class="role-card-icon">🎟️</div>
+            <div class="role-card-info">
+              <h4>
+                <span>1. Khách Tham Dự</span>
+                <span class="level-tag tag-guest">Cấp 1</span>
+              </h4>
+              <div class="role-card-desc">Chỉ hiện mã QR vé cá nhân xoay vòng tại Trang 1. Khóa hoàn toàn giao diện Soát vé & Quản trị.</div>
+              <div class="role-card-creds">
+                <span>TK: <strong>khach</strong></span>
+                <span>MK: <strong>khach123</strong></span>
+              </div>
+            </div>
+            <div>
+              <button class="quick-login-btn">
+                <span>⚡ Vào vai Khách</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Level 2: Gatekeeper / Guard -->
+          <div class="role-card" onclick="quickLogin('baove', '1234')">
+            <div class="role-card-icon">🛡️</div>
+            <div class="role-card-info">
+              <h4>
+                <span>2. Nhân Viên Bảo Vệ</span>
+                <span class="level-tag tag-guard">Cấp 2</span>
+              </h4>
+              <div class="role-card-desc">Chỉ hiện máy quét Camera tại Trang 2 để soát vé & ghi nhận check-in. Khóa giao diện Khách & Admin.</div>
+              <div class="role-card-creds">
+                <span>TK: <strong>baove</strong></span>
+                <span>PIN: <strong>1234</strong></span>
+              </div>
+            </div>
+            <div>
+              <button class="quick-login-btn">
+                <span>⚡ Vào vai Bảo Vệ</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Level 3: Admin -->
+          <div class="role-card" onclick="quickLogin('admin', 'admin123')">
+            <div class="role-card-icon">🔬</div>
+            <div class="role-card-info">
+              <h4>
+                <span>3. Quản Trị Viên (Admin)</span>
+                <span class="level-tag tag-admin">Cấp 3</span>
+              </h4>
+              <div class="role-card-desc">Hiện thanh chuyển cả 3 cấp độ để kiểm thử toàn diện, giả lập tấn công an ninh & phòng crypto lab.</div>
+              <div class="role-card-creds">
+                <span>TK: <strong>admin</strong></span>
+                <span>MK: <strong>admin123</strong></span>
+              </div>
+            </div>
+            <div>
+              <button class="quick-login-btn">
+                <span>⚡ Vào vai Admin</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div>© 2026 SecurePass • Phân Quyền An Toàn & Bảo Mật Thông Tin</div>
+  </footer>
+
+  <script>
+    let currentLang = 'vi';
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const nextTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', nextTheme);
+      document.getElementById('themeIcon').innerText = nextTheme === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('theme', nextTheme);
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'vi' ? 'en' : 'vi';
+      document.getElementById('langIndicator').innerText = currentLang === 'vi' ? 'EN' : 'VI';
+    }
+
+    // Check existing login
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      document.getElementById('themeIcon').innerText = savedTheme === 'dark' ? '☀️' : '🌙';
+
+      const user = JSON.parse(localStorage.getItem('securepass_user') || 'null');
+      if (user && user.role) {
+        document.getElementById('activeSessionBanner').style.display = 'flex';
+        document.getElementById('loggedUserName').innerText = `${user.name} (${user.role.toUpperCase()})`;
+      }
+    });
+
+    function proceedToRole() {
+      const user = JSON.parse(localStorage.getItem('securepass_user') || 'null');
+      if (user && user.redirect_url) {
+        window.location.href = user.redirect_url;
+      }
+    }
+
+    function logoutNow() {
+      localStorage.removeItem('securepass_user');
+      sessionStorage.clear();
+      document.getElementById('activeSessionBanner').style.display = 'none';
+    }
+
+    async function submitAuth(username, password) {
+      const alertBox = document.getElementById('loginAlert');
+      alertBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || 'Đăng nhập không thành công');
+        }
+
+        // Save session
+        localStorage.setItem('securepass_user', JSON.stringify(data));
+        if (data.role === 'guard') {
+          sessionStorage.setItem('staff_auth', 'true');
+        } else if (data.role === 'admin') {
+          sessionStorage.setItem('admin_auth', 'true');
+          sessionStorage.setItem('staff_auth', 'true');
+        }
+
+        // Redirect
+        window.location.href = data.redirect_url;
+      } catch (err) {
+        alertBox.innerText = err.message;
+        alertBox.style.display = 'block';
+      }
+    }
+
+    function handleManualLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      submitAuth(u, p);
+    }
+
+    function quickLogin(username, password) {
+      document.getElementById('username').value = username;
+      document.getElementById('password').value = password;
+      submitAuth(username, password);
+    }
+  </script>
+</body>
+</html>

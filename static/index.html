@@ -164,18 +164,18 @@
     </div>
 
     <!-- 3-Level Role Selector -->
-    <nav class="role-selector-bar">
-      <a href="/" class="role-tab active" title="Cấp 1: Người tham dự sự kiện">
+    <nav class="role-selector-bar" id="roleSelectorBar">
+      <a href="/" class="role-tab active" id="tabGuest" title="Cấp 1: Người tham dự sự kiện">
         <span class="role-num">1</span>
         <span class="role-icon">🎟️</span>
         <span class="role-label">Khách</span>
       </a>
-      <a href="/gatekeeper" class="role-tab" title="Cấp 2: Nhân viên an ninh cổng soát vé">
+      <a href="/gatekeeper" class="role-tab" id="tabGuard" title="Cấp 2: Nhân viên an ninh cổng soát vé">
         <span class="role-num">2</span>
         <span class="role-icon">🛡️</span>
         <span class="role-label">Bảo Vệ</span>
       </a>
-      <a href="/admin" class="role-tab" title="Cấp 3: Quản trị viên & Phòng thí nghiệm">
+      <a href="/admin" class="role-tab" id="tabAdmin" title="Cấp 3: Quản trị viên & Phòng thí nghiệm">
         <span class="role-num">3</span>
         <span class="role-icon">🔬</span>
         <span class="role-label">Quản Trị / Lab</span>
@@ -188,6 +188,9 @@
       </button>
       <button class="icon-btn" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối">
         <span id="themeIcon">☀️</span>
+      </button>
+      <button class="btn btn-secondary" onclick="logout()" style="height: 32px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" id="btnLogout" title="Đăng xuất">
+        <span>🚪</span> <span>Đăng Xuất</span>
       </button>
     </div>
   </header>
@@ -307,8 +310,6 @@
       document.getElementById('lblStatus').textContent = t.status;
       document.getElementById('lblGate').textContent = t.gate;
       document.getElementById('lblTicketId').textContent = t.ticketId;
-      document.getElementById('navGatekeeper').textContent = t.navGatekeeper;
-      document.getElementById('navAdmin').textContent = t.navAdmin;
       document.getElementById('btnDownloadQR').textContent = t.btnDownloadQR;
       document.getElementById('btnForceRotate').textContent = t.btnForceRotate;
       document.getElementById('btnResetTicket').textContent = t.btnResetTicket;
@@ -507,7 +508,34 @@
       }
     }
 
+    function checkPageAuth() {
+      const user = JSON.parse(localStorage.getItem('securepass_user') || 'null');
+      if (!user || !user.role) {
+        window.location.replace('/login');
+        return false;
+      }
+      if (user.role === 'guard') {
+        window.location.replace('/gatekeeper');
+        return false;
+      }
+      // If role is guest, hide guard and admin tabs!
+      if (user.role === 'guest') {
+        const tabGuard = document.getElementById('tabGuard');
+        const tabAdmin = document.getElementById('tabAdmin');
+        if (tabGuard) tabGuard.style.display = 'none';
+        if (tabAdmin) tabAdmin.style.display = 'none';
+      }
+      return true;
+    }
+
+    function logout() {
+      localStorage.removeItem('securepass_user');
+      sessionStorage.clear();
+      window.location.href = '/login';
+    }
+
     window.onload = function() {
+      if (!checkPageAuth()) return;
       applyI18n();
       startCountdown();
     };

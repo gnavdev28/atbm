@@ -747,6 +747,22 @@
       }
     }
 
+    function checkAdminPageAuth() {
+      const user = JSON.parse(localStorage.getItem('securepass_user') || 'null');
+      if (!user || !user.role) {
+        window.location.replace('/login');
+        return false;
+      }
+      if (user.role !== 'admin') {
+        alert('Chỉ tài khoản Admin mới có quyền truy cập Phòng Quản Trị & Lab!');
+        window.location.replace(user.role === 'guard' ? '/gatekeeper' : '/');
+        return false;
+      }
+      // Auto authenticate admin since they logged in via portal
+      sessionStorage.setItem('admin_auth', 'true');
+      return true;
+    }
+
     function loginAdmin() {
       const u = document.getElementById('inputUser').value;
       const p = document.getElementById('inputPass').value;
@@ -760,8 +776,9 @@
     }
 
     function logoutAdmin() {
-      sessionStorage.removeItem('admin_auth');
-      checkAuth();
+      localStorage.removeItem('securepass_user');
+      sessionStorage.clear();
+      window.location.href = '/login';
     }
 
     function checkAuth() {
@@ -1111,6 +1128,7 @@
     }
 
     window.onload = function() {
+      if (!checkAdminPageAuth()) return;
       applyI18n();
       checkAuth();
       if (sessionStorage.getItem('admin_auth') === 'true') {

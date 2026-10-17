@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
 
-from app.api import tickets, checkin, admin
+from app.api import tickets, checkin, admin, auth
 from app.core.config import app_state
 
 app = FastAPI(
@@ -13,6 +13,7 @@ app = FastAPI(
 )
 
 # Đăng ký các Router API
+app.include_router(auth.router)
 app.include_router(tickets.router)
 app.include_router(checkin.router)
 app.include_router(admin.router)
@@ -22,17 +23,22 @@ static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+@app.get("/login", include_in_schema=False)
+def serve_login_portal():
+    """Cổng xác thực phân quyền 3 cấp độ (Khách, Bảo vệ, Admin)"""
+    return FileResponse(os.path.join(static_dir, "login.html"))
+
 @app.get("/", include_in_schema=False)
 def serve_attendee_portal():
-    """Cổng dành cho khách xem vé cá nhân"""
+    """Cổng dành cho khách xem vé cá nhân (Trang 1)"""
     return FileResponse(os.path.join(static_dir, "index.html"))
 
 @app.get("/gatekeeper", include_in_schema=False)
 def serve_gatekeeper_terminal():
-    """Cổng máy quét camera của nhân viên an ninh"""
+    """Cổng máy quét camera của nhân viên an ninh (Trang 2)"""
     return FileResponse(os.path.join(static_dir, "gatekeeper.html"))
 
 @app.get("/admin", include_in_schema=False)
 def serve_admin_security_lab():
-    """Cổng Quản trị & Phòng thí nghiệm An ninh của giảng viên"""
+    """Cổng Quản trị & Phòng thí nghiệm An ninh của giảng viên (Trang 3)"""
     return FileResponse(os.path.join(static_dir, "admin.html"))
