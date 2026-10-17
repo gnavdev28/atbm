@@ -35,9 +35,10 @@ ENV/
 *.sqlite
 *.sqlite3
 
-# Environment variables
+# Environment & Security Keys
 .env
 .env.local
+.keys/
 
 # IDEs
 .vscode/
@@ -51,11 +52,15 @@ docs/
 *.md
 .scratch/
 
-# Mockups / HTML prototypes
+# Mockups / Throwaway prototypes
 mockups/
+prototype_demo.html
+
+# Ignore root/mockup html and css but keep static/
 *.html
 *.css
-prototype_demo.html
+!static/
+!static/**
 
 # Logs & temp
 *.log
