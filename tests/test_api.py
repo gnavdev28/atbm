@@ -130,3 +130,14 @@ def test_admin_lab_attacks():
     assert flood_data["total_requests"] == 20
     assert flood_data["success_admitted"] == 1
     assert flood_data["rejected_blocked"] == 19
+
+def test_reset_ticket_endpoint():
+    """Kiểm tra API đặt lại trạng thái vé về ACTIVE"""
+    tid = app_state.default_ticket_id
+    resp = client.post(f"/api/tickets/{tid}/reset")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "success"
+    
+    t = client.get(f"/api/tickets/{tid}").json()
+    assert t["status"] == "ACTIVE"
+

@@ -80,3 +80,13 @@ def get_dynamic_qr(ticket_id: str):
         "expires_in_seconds": 30,
         "status": ticket["status"]
     }
+
+@router.post("/{ticket_id}/reset")
+def reset_ticket(ticket_id: str):
+    """Đặt lại trạng thái vé về ACTIVE để phục vụ kiểm thử nhiều lần"""
+    ticket = app_state.db.get_ticket(ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Không tìm thấy vé")
+    app_state.db.reset_ticket(ticket_id)
+    return {"status": "success", "message": f"Đã đặt lại trạng thái vé {ticket_id} về ACTIVE"}
+

@@ -209,6 +209,15 @@
               <div id="countdownBar" class="countdown-fill"></div>
             </div>
           </div>
+
+          <div style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
+            <button class="btn btn-secondary" onclick="forceRotateQR()" style="flex: 1; height: 32px; font-size: 11px;" id="btnForceRotate">
+              🔄 Làm mới mã QR
+            </button>
+            <button class="btn btn-secondary" onclick="resetTicketStatus()" style="flex: 1; height: 32px; font-size: 11px; color: var(--primary);" id="btnResetTicket">
+              ♻️ Đặt lại vé ACTIVE
+            </button>
+          </div>
         </div>
 
         <div class="ticket-meta-grid">
@@ -237,10 +246,6 @@
 
   <footer>
     <div>© 2026 SecurePass • An Toàn & Bảo Mật Thông Tin</div>
-    <div style="display: flex; gap: 20px;">
-      <a href="/gatekeeper" id="linkGatekeeper">🛡️ Cổng Soát Vé Bảo Vệ →</a>
-      <a href="/admin" id="linkAdmin">🔬 Phòng Thí Nghiệm & Quản Trị →</a>
-    </div>
   </footer>
 
   <script>
@@ -257,8 +262,10 @@
         ticketId: "Mã định danh vé",
         statusValid: "HỢP LỆ",
         statusUsed: "ĐÃ SỬ DỤNG",
-        linkGatekeeper: "🛡️ Cổng Soát Vé Bảo Vệ →",
-        linkAdmin: "🔬 Phòng Thí Nghiệm & Quản Trị →"
+        navGatekeeper: "🛡️ Cổng Soát Vé Bảo Vệ",
+        navAdmin: "🔬 Phòng Thí Nghiệm & Quản Trị",
+        btnForceRotate: "🔄 Làm mới mã QR",
+        btnResetTicket: "♻️ Đặt lại vé ACTIVE"
       },
       en: {
         tagPortal: "Attendee Ticket Portal",
@@ -270,8 +277,10 @@
         ticketId: "Ticket ID",
         statusValid: "ACTIVE",
         statusUsed: "USED",
-        linkGatekeeper: "🛡️ Gatekeeper Terminal →",
-        linkAdmin: "🔬 Admin & Security Lab →"
+        navGatekeeper: "🛡️ Gatekeeper Terminal",
+        navAdmin: "🔬 Security Lab",
+        btnForceRotate: "🔄 Rotate QR Now",
+        btnResetTicket: "♻️ Reset to ACTIVE"
       }
     };
 
@@ -284,10 +293,10 @@
       document.getElementById('lblStatus').textContent = t.status;
       document.getElementById('lblGate').textContent = t.gate;
       document.getElementById('lblTicketId').textContent = t.ticketId;
-      document.getElementById('linkGatekeeper').textContent = t.linkGatekeeper;
-      document.getElementById('linkAdmin').textContent = t.linkAdmin;
-      document.getElementById('navGatekeeper').textContent = t.linkGatekeeper.replace(' →', '');
-      document.getElementById('navAdmin').textContent = t.linkAdmin.replace(' →', '');
+      document.getElementById('navGatekeeper').textContent = t.navGatekeeper;
+      document.getElementById('navAdmin').textContent = t.navAdmin;
+      document.getElementById('btnForceRotate').textContent = t.btnForceRotate;
+      document.getElementById('btnResetTicket').textContent = t.btnResetTicket;
       document.getElementById('langIndicator').textContent = currentLang === 'vi' ? 'EN' : 'VI';
     }
 
@@ -433,6 +442,28 @@
           bar.style.backgroundColor = 'var(--primary)';
         }
       }, 1000);
+    }
+
+    function forceRotateQR() {
+      countdown = 30;
+      const bar = document.getElementById('countdownBar');
+      bar.style.width = '100%';
+      bar.style.backgroundColor = 'var(--primary)';
+      document.getElementById('countdownTimer').textContent = '30s';
+      fetchLiveQR();
+    }
+
+    async function resetTicketStatus() {
+      try {
+        const res = await fetch(`/api/tickets/${ticketId}/reset`, { method: "POST" });
+        if (res.ok) {
+          forceRotateQR();
+        } else {
+          alert("Không thể đặt lại vé!");
+        }
+      } catch (err) {
+        console.error("Lỗi đặt lại vé:", err);
+      }
     }
 
     window.onload = function() {
