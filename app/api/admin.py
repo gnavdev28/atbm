@@ -230,7 +230,7 @@ def crypto_lab_encrypt(req: CryptoEncryptRequest, authorization: str = "admin123
         "plaintext": plain_dict,
         "nonce_hex": nonce_hex,
         "tag_hex": tag_hex,
-        "ciphertext_hex": ct_hex[:32] + "...",
+        "ciphertext_hex": ct_hex,
         "combined_token": token
     }
 

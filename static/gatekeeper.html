@@ -149,13 +149,22 @@
       </a>
     </div>
 
-    <!-- Navigation Shortcuts -->
-    <nav style="display: flex; gap: 8px;">
-      <a href="/" class="btn btn-secondary" style="height: 32px; font-size: 12px; text-decoration: none;" id="navAttendee">
-        🎟️ Cổng Khách Hàng
+    <!-- 3-Level Role Selector -->
+    <nav class="role-selector-bar">
+      <a href="/" class="role-tab" title="Cấp 1: Người tham dự sự kiện">
+        <span class="role-num">1</span>
+        <span class="role-icon">🎟️</span>
+        <span class="role-label">Khách</span>
       </a>
-      <a href="/admin" class="btn btn-secondary" style="height: 32px; font-size: 12px; text-decoration: none;" id="navAdmin">
-        🔬 Security Lab
+      <a href="/gatekeeper" class="role-tab active" title="Cấp 2: Nhân viên an ninh cổng soát vé">
+        <span class="role-num">2</span>
+        <span class="role-icon">🛡️</span>
+        <span class="role-label">Bảo Vệ</span>
+      </a>
+      <a href="/admin" class="role-tab" title="Cấp 3: Quản trị viên & Phòng thí nghiệm">
+        <span class="role-num">3</span>
+        <span class="role-icon">🔬</span>
+        <span class="role-label">Quản Trị / Lab</span>
       </a>
     </nav>
 
@@ -175,23 +184,32 @@
   <main>
 
     <!-- 1. Staff Login Form -->
-    <div id="authSection" class="auth-box">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <div style="font-size: 32px; margin-bottom: 8px;">🛡️</div>
-        <h2 style="font-size: 16px; font-weight: 600; color: var(--ink);" id="titleLogin">Đăng Nhập Ca Trực</h2>
+    <div id="authSection" class="auth-card-modern">
+      <div class="auth-header">
+        <div class="auth-icon-wrap">🛡️</div>
+        <h2 style="font-size: 16px; font-weight: 600; color: var(--ink);" id="titleLogin">Đăng Nhập Ca Trực Soát Vé</h2>
         <p style="font-size: 12px; color: var(--ink-subtle); margin-top: 4px;" id="descLogin">
-          Dành riêng cho nhân viên an ninh cửa soát vé
+          Trạm kiểm soát an ninh • Cổng chính 1A
         </p>
       </div>
 
       <div class="form-group">
-        <label id="lblPin">Mã PIN Nhân Viên (Thử: 1234)</label>
-        <input type="password" id="inputPin" class="form-control" placeholder="••••" maxlength="6" value="1234">
+        <label id="lblPin" style="display: flex; justify-content: space-between;">
+          <span>Mã PIN Ca Trực</span>
+          <span style="color: var(--primary); font-size: 11px;">Mã demo: 1234</span>
+        </label>
+        <input type="password" id="inputPin" class="form-control" placeholder="••••" maxlength="6" style="text-align: center; font-size: 18px; letter-spacing: 4px;">
       </div>
 
-      <button class="btn btn-primary" style="width: 100%; margin-top: 8px;" onclick="loginStaff()">
+      <button class="btn btn-primary" style="width: 100%; height: 38px; font-size: 13px;" onclick="loginStaff()">
         <span id="btnLogin">Xác Nhận Vào Ca</span>
       </button>
+
+      <div class="auth-quick-fill">
+        <button type="button" class="quick-fill-btn" onclick="document.getElementById('inputPin').value='1234'; loginStaff();">
+          ⚡ Điền nhanh PIN Demo (1234) & Vào Ca
+        </button>
+      </div>
     </div>
 
     <!-- 2. Scanner Terminal -->

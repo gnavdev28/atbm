@@ -163,13 +163,22 @@
       </a>
     </div>
 
-    <!-- Navigation Shortcuts -->
-    <nav style="display: flex; gap: 8px;">
-      <a href="/gatekeeper" class="btn btn-secondary" style="height: 32px; font-size: 12px; text-decoration: none;" id="navGatekeeper">
-        🛡️ Cổng Soát Vé Bảo Vệ
+    <!-- 3-Level Role Selector -->
+    <nav class="role-selector-bar">
+      <a href="/" class="role-tab active" title="Cấp 1: Người tham dự sự kiện">
+        <span class="role-num">1</span>
+        <span class="role-icon">🎟️</span>
+        <span class="role-label">Khách</span>
       </a>
-      <a href="/admin" class="btn btn-secondary" style="height: 32px; font-size: 12px; text-decoration: none;" id="navAdmin">
-        🔬 Phòng Thí Nghiệm & Quản Trị
+      <a href="/gatekeeper" class="role-tab" title="Cấp 2: Nhân viên an ninh cổng soát vé">
+        <span class="role-num">2</span>
+        <span class="role-icon">🛡️</span>
+        <span class="role-label">Bảo Vệ</span>
+      </a>
+      <a href="/admin" class="role-tab" title="Cấp 3: Quản trị viên & Phòng thí nghiệm">
+        <span class="role-num">3</span>
+        <span class="role-icon">🔬</span>
+        <span class="role-label">Quản Trị / Lab</span>
       </a>
     </nav>
 
