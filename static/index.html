@@ -230,7 +230,7 @@
     <div class="role-selector-bar">
       <div class="role-tab active" title="Vai trò: Khách">
         <span class="role-icon">🎟️</span>
-        <span class="role-label">Khách</span>
+        <span class="role-label" id="navRoleLabel">Khách</span>
       </div>
     </div>
 
@@ -242,7 +242,7 @@
         <span id="themeIcon">☀️</span>
       </button>
       <button class="btn btn-secondary" onclick="logout()" style="height: 32px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;" id="btnLogout" title="Đăng xuất">
-        <span>🚪</span> <span>Đăng Xuất</span>
+        <span>🚪</span> <span id="txtLogout">Đăng Xuất</span>
       </button>
     </div>
   </header>
@@ -274,15 +274,12 @@
             </div>
           </div>
 
-          <div style="display: flex; gap: 6px; width: 100%; margin-top: 4px;">
-            <button class="btn btn-secondary" onclick="downloadQRCode()" style="flex: 1; height: 32px; font-size: 11px; padding: 0 4px;" id="btnDownloadQR">
+          <div style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
+            <button class="btn btn-secondary" onclick="downloadQRCode()" style="flex: 1; height: 34px; font-size: 12px;" id="btnDownloadQR">
               📥 Tải ảnh mã QR
             </button>
-            <button class="btn btn-secondary" onclick="forceRotateQR()" style="flex: 1; height: 32px; font-size: 11px; padding: 0 4px;" id="btnForceRotate">
+            <button class="btn btn-secondary" onclick="forceRotateQR()" style="flex: 1; height: 34px; font-size: 12px;" id="btnForceRotate">
               🔄 Làm mới mã QR
-            </button>
-            <button class="btn btn-secondary" onclick="resetTicketStatus()" style="flex: 1; height: 32px; font-size: 11px; padding: 0 4px; color: var(--primary);" id="btnResetTicket">
-              ♻️ Đặt lại vé ACTIVE
             </button>
           </div>
         </div>
@@ -317,10 +314,13 @@
 
   <script>
     let currentLang = 'vi';
+    let currentTicketStatus = 'ACTIVE';
 
     const i18n = {
       vi: {
         tagPortal: "Cổng Vé Người Tham Dự",
+        navRoleGuest: "Khách",
+        btnLogout: "Đăng Xuất",
         venue: "Trung tâm Hội nghị Quốc gia • Hà Nội",
         rotating: "MÃ QR TỰ LÀM MỚI SAU",
         owner: "Chủ vé",
@@ -329,14 +329,13 @@
         ticketId: "Mã định danh vé",
         statusValid: "HỢP LỆ",
         statusUsed: "ĐÃ SỬ DỤNG",
-        navGatekeeper: "🛡️ Cổng Soát Vé Bảo Vệ",
-        navAdmin: "🔬 Phòng Thí Nghiệm & Quản Trị",
         btnDownloadQR: "📥 Tải ảnh mã QR",
-        btnForceRotate: "🔄 Làm mới mã QR",
-        btnResetTicket: "♻️ Đặt lại vé ACTIVE"
+        btnForceRotate: "🔄 Làm mới mã QR"
       },
       en: {
         tagPortal: "Attendee Ticket Portal",
+        navRoleGuest: "Attendee",
+        btnLogout: "Logout",
         venue: "National Convention Center • Hanoi",
         rotating: "QR CODE REFRESHING IN",
         owner: "Attendee",
@@ -345,17 +344,16 @@
         ticketId: "Ticket ID",
         statusValid: "ACTIVE",
         statusUsed: "USED",
-        navGatekeeper: "🛡️ Gatekeeper Terminal",
-        navAdmin: "🔬 Security Lab",
         btnDownloadQR: "📥 Download QR Image",
-        btnForceRotate: "🔄 Rotate QR Now",
-        btnResetTicket: "♻️ Reset to ACTIVE"
+        btnForceRotate: "🔄 Rotate QR Now"
       }
     };
 
     function applyI18n() {
       const t = i18n[currentLang];
       document.getElementById('tagPortal').textContent = t.tagPortal;
+      document.getElementById('navRoleLabel').textContent = t.navRoleGuest;
+      document.getElementById('txtLogout').textContent = t.btnLogout;
       document.getElementById('txtVenue').textContent = t.venue;
       document.getElementById('lblRotating').textContent = t.rotating;
       document.getElementById('lblOwner').textContent = t.owner;
@@ -364,8 +362,19 @@
       document.getElementById('lblTicketId').textContent = t.ticketId;
       document.getElementById('btnDownloadQR').textContent = t.btnDownloadQR;
       document.getElementById('btnForceRotate').textContent = t.btnForceRotate;
-      document.getElementById('btnResetTicket').textContent = t.btnResetTicket;
       document.getElementById('langIndicator').textContent = currentLang === 'vi' ? 'EN' : 'VI';
+
+      // Cập nhật trạng thái vé ngay khi đổi ngôn ngữ
+      const stEl = document.getElementById('ticketStatus');
+      if (stEl) {
+        if (currentTicketStatus === 'ACTIVE') {
+          stEl.textContent = t.statusValid;
+          stEl.style.color = 'var(--success)';
+        } else {
+          stEl.textContent = t.statusUsed;
+          stEl.style.color = 'var(--danger)';
+        }
+      }
     }
 
     function toggleLanguage() {
@@ -472,9 +481,10 @@
           localStorage.setItem('server_live_payload', JSON.stringify(payload));
 
           // Update status
+          currentTicketStatus = data.status || 'ACTIVE';
           const t = i18n[currentLang];
           const stEl = document.getElementById('ticketStatus');
-          if (data.status === 'ACTIVE') {
+          if (currentTicketStatus === 'ACTIVE') {
             stEl.textContent = t.statusValid;
             stEl.style.color = 'var(--success)';
           } else {

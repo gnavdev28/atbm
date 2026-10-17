@@ -337,7 +337,7 @@
     <div class="role-selector-bar">
       <div class="role-tab active" title="Vai trò: Quản Trị / Lab">
         <span class="role-icon">🔬</span>
-        <span class="role-label">Quản Trị / Lab</span>
+        <span class="role-label" id="navRoleLabel">Quản Trị / Lab</span>
       </div>
     </div>
 
@@ -348,8 +348,8 @@
       <button class="icon-btn" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối">
         <span id="themeIcon">☀️</span>
       </button>
-      <button class="btn btn-secondary" style="height: 32px; font-size: 11px; display: none;" onclick="logoutAdmin()" id="btnLogout">
-        Đăng Xuất
+      <button class="btn btn-secondary" style="height: 32px; font-size: 11px; display: none; align-items: center; gap: 4px;" onclick="logoutAdmin()" id="btnLogout">
+        <span>🚪</span> <span id="txtLogout">Đăng Xuất</span>
       </button>
     </div>
   </header>
@@ -674,6 +674,8 @@
     const i18n = {
       vi: {
         tagAdmin: "Quản Trị & Lab An Ninh",
+        navRoleAdmin: "Quản Trị / Lab",
+        btnLogout: "Đăng Xuất",
         titleAdminLogin: "Đăng Nhập Quản Trị",
         descAdminLogin: "Dành riêng cho Quản trị viên và Hội đồng Giảng viên chấm điểm",
         lblUser: "Tài khoản",
@@ -695,11 +697,12 @@
         descAttack3: "Mô phỏng N cổng quét nã request check-in cùng 1 mili-giây. Kiểm chứng Atomic Lock chống Race Condition.",
         btnTrigger3: "💥 Bắn Luồng Đồng Thời",
         linkBackAttendee: "← Cổng Khách Mua Vé",
-        linkGatekeeper: "Cổng Soát Vé Bảo Vệ →",
-        btnLogout: "Đăng Xuất"
+        linkGatekeeper: "Cổng Soát Vé Bảo Vệ →"
       },
       en: {
         tagAdmin: "Admin Console",
+        navRoleAdmin: "Admin / Lab",
+        btnLogout: "Logout",
         titleAdminLogin: "Administrator Authentication",
         descAdminLogin: "Access restricted to administrators and academic evaluators",
         lblUser: "Username",
@@ -721,14 +724,15 @@
         descAttack3: "Simulate N gate terminals sending check-ins in the exact same millisecond. Tests atomic update.",
         btnTrigger3: "💥 Fire Concurrent Threads",
         linkBackAttendee: "← Attendee Portal",
-        linkGatekeeper: "Gatekeeper Terminal →",
-        btnLogout: "Log Out"
+        linkGatekeeper: "Gatekeeper Terminal →"
       }
     };
 
     function applyI18n() {
       const t = i18n[currentLang];
       document.getElementById('tagAdmin').textContent = t.tagAdmin;
+      document.getElementById('navRoleLabel').textContent = t.navRoleAdmin;
+      document.getElementById('txtLogout').textContent = t.btnLogout;
       document.getElementById('titleAdminLogin').textContent = t.titleAdminLogin;
       document.getElementById('descAdminLogin').textContent = t.descAdminLogin;
       document.getElementById('lblUser').textContent = t.lblUser;

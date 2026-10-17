@@ -216,7 +216,7 @@
     <div class="role-selector-bar">
       <div class="role-tab active" title="Vai trò: Bảo Vệ">
         <span class="role-icon">🛡️</span>
-        <span class="role-label">Bảo Vệ</span>
+        <span class="role-label" id="navRoleLabel">Bảo Vệ</span>
       </div>
     </div>
 
@@ -227,8 +227,8 @@
       <button class="icon-btn" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối">
         <span id="themeIcon">☀️</span>
       </button>
-      <button class="btn btn-secondary" style="height: 32px; font-size: 11px; display: none;" onclick="logoutStaff()" id="btnLogout">
-        Đăng Xuất
+      <button class="btn btn-secondary" style="height: 32px; font-size: 11px; display: none; align-items: center; gap: 4px;" onclick="logoutStaff()" id="btnLogout">
+        <span>🚪</span> <span id="txtLogout">Đăng Xuất</span>
       </button>
     </div>
   </header>
@@ -308,16 +308,6 @@
         <div style="font-size: 11px; color: var(--ink-subtle); margin-top: 3px;" id="lblUploadDesc">Kiểm tra ảnh vé tải về từ trang khách hoặc ảnh chụp màn hình</div>
       </label>
 
-      <!-- Fast Demo Presets (for instant defense testing) -->
-      <div class="demo-strip">
-        <button class="btn btn-secondary" style="flex: 1; font-size: 12px;" onclick="scanAttendeePass()">
-          <span id="btnScanPass">⚡ Mô phỏng: Quét mã mới nhất từ máy chủ</span>
-        </button>
-        <button class="btn btn-secondary" style="font-size: 12px; color: var(--danger); border-color: rgba(235, 87, 87, 0.3);" onclick="scanTamperedPass()">
-          <span id="btnScanTampered">⚠️ Thử quét mã bị sửa lậu</span>
-        </button>
-      </div>
-
       <!-- Scan Feedback Result -->
       <div id="scanFeedback" class="scan-feedback">
         <div id="feedbackIcon" style="font-size: 22px;">✓</div>
@@ -325,14 +315,6 @@
           <div id="feedbackTitle" style="font-weight: 600; font-size: 14px;">CHECK-IN THÀNH CÔNG</div>
           <div id="feedbackSubtitle" style="font-size: 12px; opacity: 0.9; margin-top: 2px;">Chữ ký số hợp lệ - Mời khách vào cửa</div>
         </div>
-      </div>
-
-      <!-- Real Server Python Audit Logs -->
-      <div class="card-panel" style="margin-top: 18px;">
-        <div class="card-panel-title">
-          <span id="titleAuditLog">Nhật ký phản hồi từ Server Python (Audit Logs)</span>
-        </div>
-        <div class="code-snippet" id="auditLogs">Sẵn sàng nhận diện mã qua Camera, Tải ảnh hoặc Súng quét USB...</div>
       </div>
 
     </div>
@@ -344,10 +326,6 @@
 
   <footer>
     <div>© 2026 SecurePass • Gatekeeper Terminal Mode</div>
-    <div style="display: flex; gap: 20px;">
-      <a href="/" id="linkBackAttendee">← Về Cổng Khách Hàng</a>
-      <a href="/admin" id="linkAdmin">Quản Trị Hệ Thống →</a>
-    </div>
   </footer>
 
   <script>
@@ -356,6 +334,8 @@
     const i18n = {
       vi: {
         tagStaff: "Nhân Viên Soát Vé",
+        navRoleGuard: "Bảo Vệ",
+        btnLogout: "Đăng Xuất",
         titleLogin: "Đăng Nhập Ca Trực",
         descLogin: "Dành riêng cho nhân viên an ninh cửa soát vé",
         lblPin: "Mã PIN Nhân Viên (Thử: 1234)",
@@ -366,16 +346,12 @@
         btnToggleCamera: "📹 Bật Webcam Quét Trực Tiếp",
         btnStopCamera: "⏹ Tắt Camera",
         lblUploadTitle: "Tải Lên / Kéo Thả Ảnh Vé QR",
-        lblUploadDesc: "Kiểm tra ảnh vé tải về từ trang khách hoặc ảnh chụp màn hình",
-        btnScanPass: "⚡ Mô phỏng: Quét mã mới nhất từ máy chủ",
-        btnScanTampered: "⚠️ Thử quét mã bị sửa lậu",
-        titleAuditLog: "Nhật ký phản hồi từ Server Python (Audit Logs)",
-        linkBackAttendee: "← Về Cổng Khách Hàng",
-        linkAdmin: "Quản Trị Hệ Thống →",
-        btnLogout: "Đăng Xuất"
+        lblUploadDesc: "Kiểm tra ảnh vé tải về từ trang khách hoặc ảnh chụp màn hình"
       },
       en: {
         tagStaff: "Gate Staff",
+        navRoleGuard: "Security Guard",
+        btnLogout: "Logout",
         titleLogin: "Staff Authentication",
         descLogin: "Authorized security personnel only",
         lblPin: "Staff PIN Code (Default: 1234)",
@@ -386,19 +362,15 @@
         btnToggleCamera: "📹 Start Live Webcam Scan",
         btnStopCamera: "⏹ Stop Camera",
         lblUploadTitle: "Upload / Drop QR Pass Image",
-        lblUploadDesc: "Verify downloaded pass or screenshot",
-        btnScanPass: "⚡ Simulation: Scan Fresh Server Pass",
-        btnScanTampered: "⚠️ Test Tampered / Forged Pass",
-        titleAuditLog: "Server Response Audit Logs",
-        linkBackAttendee: "← Attendee Portal",
-        linkAdmin: "Admin Console →",
-        btnLogout: "Log Out"
+        lblUploadDesc: "Verify downloaded pass or screenshot"
       }
     };
 
     function applyI18n() {
       const t = i18n[currentLang];
       document.getElementById('tagStaff').textContent = t.tagStaff;
+      document.getElementById('navRoleLabel').textContent = t.navRoleGuard;
+      document.getElementById('txtLogout').textContent = t.btnLogout;
       document.getElementById('titleLogin').textContent = t.titleLogin;
       document.getElementById('descLogin').textContent = t.descLogin;
       document.getElementById('lblPin').textContent = t.lblPin;
@@ -410,12 +382,6 @@
       document.getElementById('btnStopCamera').textContent = t.btnStopCamera;
       document.getElementById('lblUploadTitle').textContent = t.lblUploadTitle;
       document.getElementById('lblUploadDesc').textContent = t.lblUploadDesc;
-      document.getElementById('btnScanPass').textContent = t.btnScanPass;
-      document.getElementById('btnScanTampered').textContent = t.btnScanTampered;
-      document.getElementById('titleAuditLog').textContent = t.titleAuditLog;
-      document.getElementById('linkBackAttendee').textContent = t.linkBackAttendee;
-      document.getElementById('linkAdmin').textContent = t.linkAdmin;
-      document.getElementById('btnLogout').textContent = t.btnLogout;
       document.getElementById('langIndicator').textContent = currentLang === 'vi' ? 'EN' : 'VI';
     }
 
@@ -660,12 +626,8 @@
       const title = document.getElementById('feedbackTitle');
       const sub = document.getElementById('feedbackSubtitle');
       const icon = document.getElementById('feedbackIcon');
-      const logEl = document.getElementById('auditLogs');
 
       banner.style.display = 'flex';
-      let logs = `[${new Date().toLocaleTimeString()}] GỬI GÓI TIN ĐẾN FASTAPI BACKEND:\n`;
-      logs += `POST /api/checkin -> Ticket ID: ${payload.tid || 'UNKNOWN'}\n`;
-      logs += `Payload: ${JSON.stringify(payload, null, 2)}\n\n`;
 
       try {
         const res = await fetch("/api/checkin", {
@@ -684,26 +646,63 @@
         });
 
         const result = await res.json();
-        logs += `KẾT QUẢ XÁC THỰC MẬT MÃ:\n` + JSON.stringify(result, null, 2);
-        logEl.textContent = logs;
 
         if (res.ok && result.success) {
           playSuccessBeep();
           banner.className = 'scan-feedback valid';
           icon.textContent = '✓';
           title.textContent = currentLang === 'vi' ? 'CHECK-IN THÀNH CÔNG' : 'CHECK-IN APPROVED';
-          sub.textContent = `${result.owner ? result.owner.full_name : 'Khách'} (${result.tier}) - Cổng: ${result.gate_id}`;
+          sub.textContent = `${result.owner ? result.owner.full_name : 'Khách'} (${result.tier}) • Cổng: ${result.gate_id}`;
         } else {
           playFailureBuzzer();
           banner.className = 'scan-feedback invalid';
-          icon.textContent = result.error_code === 'FORGERY_DETECTED' ? '🚨' : '⚠️';
-          title.textContent = currentLang === 'vi' ? 'TỪ CHỐI CHECK-IN' : 'CHECK-IN REJECTED';
-          sub.textContent = result.message || "Không thể xác minh vé.";
+
+          // Báo lỗi chính xác từng tình huống thực tế
+          if (result.error_code === 'FORGERY_DETECTED') {
+            icon.textContent = '🚨';
+            title.textContent = currentLang === 'vi' ? 'CẢNH BÁO: VÉ KHÔNG HỢP LỆ' : 'WARNING: INVALID TICKET';
+            sub.textContent = currentLang === 'vi' 
+              ? 'Chữ ký số ECDSA không khớp! Dữ liệu vé có dấu hiệu bị làm giả hoặc sửa đổi.' 
+              : 'Invalid ECDSA signature! Ticket data appears forged or modified.';
+          } else if (result.error_code === 'REPLAY_ATTACK' || result.step_failed === 'TIMESTAMP_OR_NONCE_EXPIRED') {
+            const isExpired = result.message && (result.message.includes('quá hạn') || result.message.includes('>30s'));
+            if (isExpired) {
+              icon.textContent = '⏳';
+              title.textContent = currentLang === 'vi' ? 'TỪ CHỐI: MÃ QR ĐÃ HẾT HẠN' : 'REJECTED: QR PASS EXPIRED';
+              sub.textContent = currentLang === 'vi' 
+                ? 'Mã QR đã quá thời hạn 30 giây! Vui lòng yêu cầu khách mở lại mã mới.' 
+                : 'QR code expired (>30s). Please request attendee to refresh dynamic pass.';
+            } else {
+              icon.textContent = '⚠️';
+              title.textContent = currentLang === 'vi' ? 'TỪ CHỐI: MÃ QR BỊ QUÉT LẶP' : 'REJECTED: DUPLICATE QR SCAN';
+              sub.textContent = currentLang === 'vi' 
+                ? 'Mã QR này đã được quét trước đó (Nghi vấn sử dụng ảnh chụp lại). Phát hiện Replay Attack!' 
+                : 'This dynamic QR pass was already consumed. Replay attack detected!';
+            }
+          } else if (result.error_code === 'ALREADY_USED_OR_RACE_CONDITION') {
+            icon.textContent = '🚫';
+            title.textContent = currentLang === 'vi' ? 'TỪ CHỐI: VÉ ĐÃ CHECK-IN TRƯỚC ĐÓ' : 'REJECTED: TICKET ALREADY USED';
+            sub.textContent = currentLang === 'vi' 
+              ? (result.message || 'Vé này đã được ghi nhận check-in trước đó trong hệ thống!') 
+              : (result.message || 'Ticket was already checked in at this event!');
+          } else if (res.status === 429) {
+            icon.textContent = '⚡';
+            title.textContent = currentLang === 'vi' ? 'TỪ CHỐI: QUÉT QUÁ DÀY ĐẶC' : 'REJECTED: RATE LIMIT EXCEEDED';
+            sub.textContent = currentLang === 'vi' 
+              ? 'Tần suất quét vượt quá giới hạn an toàn. Vui lòng thử lại sau 2 giây.' 
+              : 'Too many requests. Please wait 2 seconds before scanning again.';
+          } else {
+            icon.textContent = '❌';
+            title.textContent = currentLang === 'vi' ? 'TỪ CHỐI: CHECK-IN THẤT BÀI' : 'REJECTED: CHECK-IN FAILED';
+            sub.textContent = result.detail || result.message || (currentLang === 'vi' ? 'Dữ liệu quét không hợp lệ hoặc máy chủ từ chối.' : 'Invalid pass data or server rejected.');
+          }
         }
       } catch (err) {
         playFailureBuzzer();
-        logs += `Lỗi kết nối: ${err.message}`;
-        logEl.textContent = logs;
+        banner.className = 'scan-feedback invalid';
+        icon.textContent = '❌';
+        title.textContent = currentLang === 'vi' ? 'LỖI KẾT NỐI MÁY CHỦ' : 'SERVER CONNECTION ERROR';
+        sub.textContent = err.message || (currentLang === 'vi' ? 'Không thể kết nối đến máy chủ soát vé.' : 'Cannot reach check-in server.');
       }
     }
 
