@@ -212,16 +212,17 @@ def test_concurrency_attack(req: Optional[ConcurrencyAttackRequest] = None, auth
 
 @router.post("/crypto-lab/encrypt")
 def crypto_lab_encrypt(req: CryptoEncryptRequest, authorization: str = "admin123"):
-    """Trực quan hóa thuật toán mã hóa xác thực AES-256-GCM (Chương 1 & 2)"""
+    """Trực quan hóa thuật toán mã hóa xác thực AES-256-GCM"""
     verify_admin_auth(authorization)
     plain_dict = {"full_name": req.full_name, "citizen_id": req.citizen_id}
     token = app_state.crypto.encrypt_data(plain_dict, app_state.aes_key)
     
-    # Giải mã nhị phân cấu trúc Base64 token: [12 bytes IV/Nonce] + [16 bytes Tag] + [Ciphertext]
-    raw = base64.b64decode(token.encode('utf-8'))
+    # Giải mã Base64 URL-safe có bù padding: [12 bytes Nonce] + [Ciphertext] + [16 bytes MAC Tag]
+    pad = '=' * (-len(token) % 4)
+    raw = base64.urlsafe_b64decode((token + pad).encode('utf-8'))
     nonce_hex = raw[:12].hex()
-    tag_hex = raw[12:28].hex()
-    ct_hex = raw[28:].hex()
+    tag_hex = raw[-16:].hex()
+    ct_hex = raw[12:-16].hex()
 
     return {
         "status": "success",
@@ -239,6 +240,13 @@ def crypto_lab_decrypt(req: CryptoDecryptRequest, authorization: str = "admin123
     verify_admin_auth(authorization)
     try:
         decrypted = app_state.crypto.decrypt_data(req.encrypted_token, app_state.aes_key)
+        if not decrypted:
+            return {
+                "success": False,
+                "mac_tag_valid": False,
+                "decrypted_data": None,
+                "message": "Giải mã thất bại hoặc dữ liệu bị sửa đổi (MAC Tag Invalid)"
+            }
         return {
             "success": True,
             "mac_tag_valid": True,
