@@ -23,8 +23,9 @@
       margin: 10px 0;
     }
     .thread-node {
-      width: 32px;
-      height: 32px;
+      min-width: 34px;
+      height: 30px;
+      padding: 0 4px;
       border-radius: 6px;
       display: flex;
       align-items: center;
@@ -35,15 +36,17 @@
       transition: all 0.2s ease;
     }
     .thread-node.pass {
-      background: rgba(16, 185, 129, 0.2);
-      border: 1px solid var(--success);
-      color: var(--success);
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+      background: #059669;
+      border: 1px solid #10b981;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+      font-weight: 800;
     }
     .thread-node.block {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #f87171;
+      background: #991b1b;
+      border: 1px solid #ef4444;
+      color: #ffffff;
+      font-weight: 700;
     }
     .qr-preview-box {
       background: var(--surface-2);
@@ -110,6 +113,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
+      align-items: start;
     }
 
     .attack-card {
@@ -119,7 +123,8 @@
       padding: 20px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
+      gap: 16px;
     }
 
     .attack-tag {
@@ -933,7 +938,7 @@
 
       const tempCluster = document.getElementById('tempLoadingCluster');
       for (let i = 1; i <= count; i++) {
-        tempCluster.innerHTML += `<div class="thread-node" style="opacity:0.4; background:var(--surface-2); border:1px solid var(--hairline)">G${i}</div>`;
+        tempCluster.innerHTML += `<div class="thread-node" style="background:#374151; border:1px solid #4b5563; color:#f3f4f6;">G${i}</div>`;
       }
 
       try {
