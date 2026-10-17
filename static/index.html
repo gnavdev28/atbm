@@ -213,6 +213,16 @@
       </a>
     </div>
 
+    <!-- Navigation Shortcuts -->
+    <nav style="display: flex; gap: 8px;">
+      <a href="/gatekeeper" class="btn btn-secondary" style="height: 32px; font-size: 12px; text-decoration: none;" id="navGatekeeper">
+        🛡️ Cổng Soát Vé Bảo Vệ
+      </a>
+      <a href="/admin" class="btn btn-secondary" style="height: 32px; font-size: 12px; text-decoration: none;" id="navAdmin">
+        🔬 Phòng Thí Nghiệm & Quản Trị
+      </a>
+    </nav>
+
     <div class="utility-controls">
       <button class="lang-btn" onclick="toggleLanguage()" title="Chuyển ngôn ngữ / Switch Language">
         <span id="langIndicator">EN</span>
@@ -428,6 +438,8 @@
       document.getElementById('agenda3').textContent = t.agenda3;
       document.getElementById('linkGatekeeper').textContent = t.linkGatekeeper;
       document.getElementById('linkAdmin').textContent = t.linkAdmin;
+      document.getElementById('navGatekeeper').textContent = t.linkGatekeeper.replace(' →', '');
+      document.getElementById('navAdmin').textContent = t.linkAdmin.replace(' →', '');
       document.getElementById('langIndicator').textContent = currentLang === 'vi' ? 'EN' : 'VI';
     }
 
