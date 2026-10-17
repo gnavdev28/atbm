@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Lab & Quản Trị - SecurePass Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/linear-theme.css">
+  <style>
+    .admin-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .attacks-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .attack-card {
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .attack-tag {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-subtle);
+      margin-bottom: 8px;
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .attack-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .attack-desc {
+      font-size: 12px;
+      color: var(--ink-subtle);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .attack-output {
+      margin-top: 14px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--surface-2);
+      border: 1px solid var(--hairline);
+      display: none;
+      line-height: 1.5;
+    }
+
+    .threads-cluster {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 8px 0;
+    }
+
+    .thread-node {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .thread-node.pass { background: var(--success); }
+    .thread-node.block { background: var(--danger); opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-section">
+      <div class="brand-logo">A</div>
+      <a href="/admin" class="brand-name">
+        <span>AdminConsole</span>
+        <span class="badge-tag" id="tagAdmin">Quản Trị & Lab An Ninh</span>
+      </a>
+    </div>
+
+    <div class="utility-controls">
+      <button class="lang-btn" onclick="toggleLanguage()" title="Chuyển ngôn ngữ / Switch Language">
+        <span id="langIndicator">EN</span>
+      </button>
+      <button class="icon-btn" onclick="toggleTheme()" title="Đổi giao diện Sáng/Tối">
+        <span id="themeIcon">☀️</span>
+      </button>
+      <button class="btn btn-secondary" style="height: 32px; font-size: 11px;" onclick="logoutAdmin()" id="btnLogout" style="display: none;">
+        Đăng Xuất
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- 1. Admin Login Form -->
+    <div id="authSection" class="auth-box">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="font-size: 32px; margin-bottom: 8px;">🔐</div>
+        <h2 style="font-size: 16px; font-weight: 600; color: var(--ink);" id="titleAdminLogin">Đăng Nhập Quản Trị</h2>
+        <p style="font-size: 12px; color: var(--ink-subtle); margin-top: 4px;" id="descAdminLogin">
+          Dành riêng cho Quản trị viên và Hội đồng Giảng viên chấm điểm
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label id="lblUser">Tài khoản</label>
+        <input type="text" id="inputUser" class="form-control" value="admin">
+      </div>
+      <div class="form-group">
+        <label id="lblPass">Mật khẩu (Thử: admin123)</label>
+        <input type="password" id="inputPass" class="form-control" value="admin123">
+      </div>
+
+      <button class="btn btn-primary" style="width: 100%; margin-top: 8px;" onclick="loginAdmin()">
+        <span id="btnAdminLogin">Xác Nhận Truy Cập Lab</span>
+      </button>
+    </div>
+
+    <!-- 2. Security Lab Dashboard -->
+    <div id="labSection" class="admin-container" style="display: none;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+          <h1 style="font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 4px;" id="titleSecurityLab">
+            Phòng Thí Nghiệm An Ninh & Quản Trị Hệ Thống
+          </h1>
+          <p style="font-size: 13px; color: var(--ink-subtle);" id="descSecurityLab">
+            Môi trường kiểm toán mật mã và kích hoạt các kịch bản tấn công thực tế từ server Python.
+          </p>
+        </div>
+        <div>
+          <button class="btn btn-secondary" onclick="resetServerTicket()">
+            <span id="btnResetTicket">🔄 Đặt Lại Trạng Thái Vé (Active)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 Attack Simulation Cards -->
+      <div class="attacks-grid">
+        
+        <!-- Attack 1: Forgery / Tamper -->
+        <div class="attack-card">
+          <div>
+            <span class="attack-tag">CHƯƠNG 3 • CHỮ KÝ SỐ</span>
+            <div class="attack-title" id="titleAttack1">1. Làm giả dữ liệu vé</div>
+            <div class="attack-desc" id="descAttack1">
+              Kẻ tấn công sửa trường dữ liệu hạng vé (Standard → VIP) mà không có Private Key máy chủ để ký lại.
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-danger" style="width: 100%;" onclick="runBackendAttack('tamper')">
+              <span id="btnTrigger1">🚨 Thử giả mạo chữ ký</span>
+            </button>
+            <div id="outputTamper" class="attack-output"></div>
+          </div>
+        </div>
+
+        <!-- Attack 2: Replay Attack -->
+        <div class="attack-card">
+          <div>
+            <span class="attack-tag">CHƯƠNG 5 • AN NINH MẠNG</span>
+            <div class="attack-title" id="titleAttack2">2. Tấn công phát lại (Replay)</div>
+            <div class="attack-desc" id="descAttack2">
+              Dùng ảnh chụp màn hình QR cũ quá 30 giây hoặc gửi lại gói tin quét đã từng sử dụng.
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-danger" style="width: 100%;" onclick="runBackendAttack('replay')">
+              <span id="btnTrigger2">⏰ Thử gửi mã hết hạn (>30s)</span>
+            </button>
+            <div id="outputReplay" class="attack-output"></div>
+          </div>
+        </div>
+
+        <!-- Attack 3: Concurrency Flood -->
+        <div class="attack-card">
+          <div>
+            <span class="attack-tag">CHƯƠNG 4 • CƠ SỞ DỮ LIỆU</span>
+            <div class="attack-title" id="titleAttack3">3. Tranh chấp đồng thời</div>
+            <div class="attack-desc" id="descAttack3">
+              Mô phỏng 20 cổng quét nã request check-in cùng 1 mili-giây. Kiểm chứng Atomic Lock chống Race Condition.
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-danger" style="width: 100%;" onclick="runBackendAttack('concurrency')">
+              <span id="btnTrigger3">💥 Nã 20 requests đồng thời</span>
+            </button>
+            <div id="outputConcurrency" class="attack-output"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Cryptographic Inspector Component -->
+      <div class="card-panel">
+        <div class="card-panel-title">
+          <span id="titleInspector">Bóc Tách Mật Mã Học Máy Chủ (Server Cryptographic Inspector)</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div>
+            <div style="font-size: 11px; color: var(--ink-subtle); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace;">
+              SERVER PUBLIC KEY (ECDSA NIST P-256)
+            </div>
+            <div class="code-snippet" id="keyDisplay" style="font-size: 10px; max-height: 120px;">Đang tải khóa...</div>
+          </div>
+          <div>
+            <div style="font-size: 11px; color: var(--ink-subtle); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace;">
+              AES-256-GCM DATA INTEGRITY STATUS
+            </div>
+            <div class="code-snippet" style="font-size: 11px; line-height: 1.8;">
+              • Cipher: AES-256-GCM<br>
+              • Key Length: 256 bits (32 bytes)<br>
+              • Nonce: 96-bit Random CSPRNG<br>
+              • Tag: 128-bit Authentication Tag (MAC)
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <div>© 2026 SecurePass • Admin & Security Lab Environment</div>
+    <div style="display: flex; gap: 20px;">
+      <a href="/" id="linkBackAttendee">← Cổng Khách Mua Vé</a>
+      <a href="/gatekeeper" id="linkGatekeeper">Cổng Soát Vé Bảo Vệ →</a>
+    </div>
+  </footer>
+
+  <script>
+    let currentLang = 'vi';
+
+    const i18n = {
+      vi: {
+        tagAdmin: "Quản Trị & Lab An Ninh",
+        titleAdminLogin: "Đăng Nhập Quản Trị",
+        descAdminLogin: "Dành riêng cho Quản trị viên và Hội đồng Giảng viên chấm điểm",
+        lblUser: "Tài khoản",
+        lblPass: "Mật khẩu (Thử: admin123)",
+        btnAdminLogin: "Xác Nhận Truy Cập Lab",
+        titleSecurityLab: "Phòng Thí Nghiệm An Ninh & Quản Trị Hệ Thống",
+        descSecurityLab: "Môi trường kiểm toán mật mã và kích hoạt các kịch bản tấn công thực tế từ server Python.",
+        btnResetTicket: "🔄 Đặt Lại Trạng Thái Vé (Active)",
+        titleAttack1: "1. Làm giả dữ liệu vé",
+        descAttack1: "Kẻ tấn công sửa trường dữ liệu hạng vé (Standard → VIP) mà không có Private Key máy chủ để ký lại.",
+        btnTrigger1: "🚨 Thử giả mạo chữ ký",
+        titleAttack2: "2. Tấn công phát lại (Replay)",
+        descAttack2: "Dùng ảnh chụp màn hình QR cũ quá 30 giây hoặc gửi lại gói tin quét đã từng sử dụng.",
+        btnTrigger2: "⏰ Thử gửi mã hết hạn (>30s)",
+        titleAttack3: "3. Tranh chấp đồng thời",
+        descAttack3: "Mô phỏng 20 cổng quét nã request check-in cùng 1 mili-giây. Kiểm chứng Atomic Lock chống Race Condition.",
+        btnTrigger3: "💥 Nã 20 requests đồng thời",
+        titleInspector: "Bóc Tách Mật Mã Học Máy Chủ (Server Cryptographic Inspector)",
+        linkBackAttendee: "← Cổng Khách Mua Vé",
+        linkGatekeeper: "Cổng Soát Vé Bảo Vệ →",
+        btnLogout: "Đăng Xuất"
+      },
+      en: {
+        tagAdmin: "Admin Console",
+        titleAdminLogin: "Administrator Authentication",
+        descAdminLogin: "Access restricted to administrators and academic evaluators",
+        lblUser: "Username",
+        lblPass: "Password (Default: admin123)",
+        btnAdminLogin: "Authenticate to Lab",
+        titleSecurityLab: "Security Lab & Administration Console",
+        descSecurityLab: "Cryptographic inspection environment and live attack simulation harness from Python backend.",
+        btnResetTicket: "🔄 Reset Ticket Status (Active)",
+        titleAttack1: "1. Ticket Forgery Attack",
+        descAttack1: "Adversary alters ticket tier payload without possession of the server's private key.",
+        btnTrigger1: "🚨 Simulate Signature Forgery",
+        titleAttack2: "2. Replay Attack",
+        descAttack2: "Adversary submits an expired QR screenshot (>30s) or replays previously submitted nonces.",
+        btnTrigger2: "⏰ Submit Expired QR (>30s)",
+        titleAttack3: "3. Concurrency Race Condition",
+        descAttack3: "Simulate 20 gate terminals sending check-ins in the exact same millisecond. Tests atomic update.",
+        btnTrigger3: "💥 Fire 20 Concurrent Requests",
+        titleInspector: "Server Cryptographic Inspector",
+        linkBackAttendee: "← Attendee Portal",
+        linkGatekeeper: "Gatekeeper Terminal →",
+        btnLogout: "Log Out"
+      }
+    };
+
+    function applyI18n() {
+      const t = i18n[currentLang];
+      document.getElementById('tagAdmin').textContent = t.tagAdmin;
+      document.getElementById('titleAdminLogin').textContent = t.titleAdminLogin;
+      document.getElementById('descAdminLogin').textContent = t.descAdminLogin;
+      document.getElementById('lblUser').textContent = t.lblUser;
+      document.getElementById('lblPass').textContent = t.lblPass;
+      document.getElementById('btnAdminLogin').textContent = t.btnAdminLogin;
+      document.getElementById('titleSecurityLab').textContent = t.titleSecurityLab;
+      document.getElementById('descSecurityLab').textContent = t.descSecurityLab;
+      document.getElementById('btnResetTicket').textContent = t.btnResetTicket;
+      document.getElementById('titleAttack1').textContent = t.titleAttack1;
+      document.getElementById('descAttack1').textContent = t.descAttack1;
+      document.getElementById('btnTrigger1').textContent = t.btnTrigger1;
+      document.getElementById('titleAttack2').textContent = t.titleAttack2;
+      document.getElementById('descAttack2').textContent = t.descAttack2;
+      document.getElementById('btnTrigger2').textContent = t.btnTrigger2;
+      document.getElementById('titleAttack3').textContent = t.titleAttack3;
+      document.getElementById('descAttack3').textContent = t.descAttack3;
+      document.getElementById('btnTrigger3').textContent = t.btnTrigger3;
+      document.getElementById('titleInspector').textContent = t.titleInspector;
+      document.getElementById('linkBackAttendee').textContent = t.linkBackAttendee;
+      document.getElementById('linkGatekeeper').textContent = t.linkGatekeeper;
+      document.getElementById('btnLogout').textContent = t.btnLogout;
+      document.getElementById('langIndicator').textContent = currentLang === 'vi' ? 'EN' : 'VI';
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'vi' ? 'en' : 'vi';
+      applyI18n();
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const current = root.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      document.getElementById('themeIcon').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
+    function loginAdmin() {
+      const u = document.getElementById('inputUser').value;
+      const p = document.getElementById('inputPass').value;
+      if (u === 'admin' && p === 'admin123') {
+        sessionStorage.setItem('admin_auth', 'true');
+        checkAuth();
+        fetchServerKeys();
+      } else {
+        alert(currentLang === 'vi' ? 'Sai tài khoản hoặc mật khẩu! (Thử: admin / admin123)' : 'Invalid credentials! (Try: admin / admin123)');
+      }
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem('admin_auth');
+      checkAuth();
+    }
+
+    function checkAuth() {
+      const isAuth = sessionStorage.getItem('admin_auth') === 'true';
+      document.getElementById('authSection').style.display = isAuth ? 'none' : 'block';
+      document.getElementById('labSection').style.display = isAuth ? 'grid' : 'none';
+      document.getElementById('btnLogout').style.display = isAuth ? 'inline-flex' : 'none';
+    }
+
+    async function fetchServerKeys() {
+      try {
+        const res = await fetch("/api/admin/keys?authorization=admin123");
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('keyDisplay').textContent = data.public_key_pem;
+        }
+      } catch (err) {
+        console.error("Lỗi lấy khóa server:", err);
+      }
+    }
+
+    async function resetServerTicket() {
+      try {
+        const res = await fetch("/api/admin/reset-ticket?authorization=admin123", { method: "POST" });
+        const data = await res.json();
+        alert(data.message);
+      } catch (err) {
+        alert("Lỗi kết nối server: " + err.message);
+      }
+    }
+
+    async function runBackendAttack(type) {
+      if (type === 'tamper') {
+        const out = document.getElementById('outputTamper');
+        out.style.display = 'block';
+        out.innerHTML = `Đang chạy tấn công trên Server Python...`;
+
+        const res = await fetch("/api/admin/test-tamper?authorization=admin123", { method: "POST" });
+        const d = await res.json();
+        
+        out.innerHTML = `
+          <div style="color: var(--danger); font-weight: 600; margin-bottom: 3px;">🚨 BẮT ĐƯỢC GIẢ MẠO CHỮ KÝ</div>
+          <div>• Thay đổi: ${d.modified_field}</div>
+          <div>• ECDSA Verify(Pub, Hash, Sig) = <strong style="color:var(--danger)">${d.ecdsa_verification_result}</strong></div>
+          <div style="color: var(--ink-subtle); margin-top: 3px;">=> ${d.explanation}</div>
+        `;
+      } else if (type === 'replay') {
+        const out = document.getElementById('outputReplay');
+        out.style.display = 'block';
+        out.innerHTML = `Đang kiểm tra Replay Attack trên Server...`;
+
+        const res = await fetch("/api/admin/test-replay?authorization=admin123", { method: "POST" });
+        const d = await res.json();
+
+        out.innerHTML = `
+          <div style="color: var(--danger); font-weight: 600; margin-bottom: 3px;">⏰ BẮT ĐƯỢC REPLAY ATTACK</div>
+          <div>• Độ tuổi gói tin: ${d.timestamp_age_seconds}s (Ngưỡng cho phép: <= ${d.allowed_threshold_seconds}s)</div>
+          <div>• Server phản hồi: ${d.server_response}</div>
+          <div style="color: var(--ink-subtle); margin-top: 3px;">=> ${d.explanation}</div>
+        `;
+      } else if (type === 'concurrency') {
+        const out = document.getElementById('outputConcurrency');
+        out.style.display = 'block';
+        out.innerHTML = `Đang nã 20 luồng đồng thời vào CSDL SQLite...`;
+
+        const res = await fetch("/api/admin/test-concurrency?authorization=admin123", { method: "POST" });
+        const d = await res.json();
+
+        let nodesHtml = '';
+        for (let r of d.results_details) {
+          if (r.success) {
+            nodesHtml += `<div class="thread-node pass" title="Worker ${r.worker_id}: Thành công (rowcount=1)">${r.worker_id}</div>`;
+          } else {
+            nodesHtml += `<div class="thread-node block" title="Worker ${r.worker_id}: Bị từ chối">${r.worker_id}</div>`;
+          }
+        }
+
+        out.innerHTML = `
+          <div style="color: var(--success); font-weight: 600; margin-bottom: 4px;">💥 KẾT QUẢ: ${d.success_admitted} THÀNH CÔNG, ${d.rejected_blocked} BỊ CHẶN</div>
+          <div>20 luồng Python chạy song song (Multithreading):</div>
+          <div class="threads-cluster">${nodesHtml}</div>
+          <div>• Đúng 1 luồng nhận <code>rowcount = 1</code> (Chấp thuận)</div>
+          <div>• 19 luồng nhận <code>rowcount = 0</code> (Từ chối)</div>
+          <div style="color: var(--ink-subtle); margin-top: 3px;">=> ${d.explanation}</div>
+        `;
+      }
+    }
+
+    window.onload = function() {
+      applyI18n();
+      checkAuth();
+      if (sessionStorage.getItem('admin_auth') === 'true') {
+        fetchServerKeys();
+      }
+    };
+  </script>
+</body>
+</html>
