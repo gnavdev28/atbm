@@ -21,7 +21,7 @@
       gap: 4px !important;
     }
     .role-tab, a.role-tab, a.role-tab:link, a.role-tab:visited {
-      display: inline-flex !important;
+      display: inline-flex;
       align-items: center !important;
       gap: 6px !important;
       padding: 5px 12px !important;
@@ -33,6 +33,9 @@
       border: 1px solid transparent !important;
       transition: all 0.15s ease !important;
       user-select: none !important;
+    }
+    .role-tab.hidden, a.role-tab.hidden {
+      display: none !important;
     }
     .role-tab:hover, a.role-tab:hover {
       color: var(--ink) !important;
@@ -280,7 +283,7 @@
           Máy Quét Cổng 1A (Terminal 1A)
         </h1>
         <p style="font-size: 13px; color: var(--ink-subtle);" id="descTerminal">
-          Hỗ trợ Webcam trực tiếp, ảnh chụp màn hình vé, súng quét mã vạch USB và xác minh chữ ký số ECDSA P-256 thời gian thực.
+          Hệ thống kiểm soát vé an ninh trực tiếp qua Camera và xác minh chữ ký số ECDSA P-256 thời gian thực.
         </p>
       </div>
 
@@ -299,7 +302,7 @@
             </button>
           </div>
           <div style="position: absolute; bottom: 16px; font-size: 11px; color: var(--ink-subtle); font-family: 'JetBrains Mono', monospace;" id="txtCameraReady">
-            SẴN SÀNG KẾT NỐI WEBCAM HOẶC TẢI ẢNH VÉ
+            SẴN SÀNG KẾT NỐI WEBCAM
           </div>
         </div>
 
@@ -351,8 +354,8 @@
         lblPin: "Mã PIN Nhân Viên (Thử: 1234)",
         btnLogin: "Xác Nhận Vào Ca",
         titleTerminal: "Máy Quét Cổng 1A (Terminal 1A)",
-        descTerminal: "Hỗ trợ Webcam trực tiếp, ảnh chụp màn hình vé, súng quét mã vạch USB và xác minh chữ ký số ECDSA P-256 thời gian thực.",
-        txtCameraReady: "SẴN SÀNG KẾT NỐI WEBCAM HOẶC TẢI ẢNH VÉ",
+        descTerminal: "Hệ thống kiểm soát vé an ninh trực tiếp qua Camera và xác minh chữ ký số ECDSA P-256 thời gian thực.",
+        txtCameraReady: "SẴN SÀNG KẾT NỐI WEBCAM",
         btnToggleCamera: "📹 Bật Webcam Quét Trực Tiếp",
         btnStopCamera: "⏹ Tắt Camera",
         lblUploadTitle: "Tải Lên / Kéo Thả Ảnh Vé QR",
@@ -369,8 +372,8 @@
         lblPin: "Staff PIN Code (Default: 1234)",
         btnLogin: "Sign In to Terminal",
         titleTerminal: "Gate 1A Scanner Terminal",
-        descTerminal: "Supports live webcam stream, ticket screenshot upload, USB barcode scanners, and real-time ECDSA P-256 verification.",
-        txtCameraReady: "READY FOR WEBCAM STREAM OR TICKET IMAGE",
+        descTerminal: "Security pass control system via live camera and real-time ECDSA P-256 verification.",
+        txtCameraReady: "READY FOR WEBCAM STREAM",
         btnToggleCamera: "📹 Start Live Webcam Scan",
         btnStopCamera: "⏹ Stop Camera",
         lblUploadTitle: "Upload / Drop QR Pass Image",
@@ -475,15 +478,13 @@
         window.location.replace('/');
         return false;
       }
-      // If role is guard, hide Khách and Admin tabs!
-      if (user.role === 'guard') {
+      // If role is NOT admin, permanently remove Khách and Admin tabs from DOM!
+      if (user.role !== 'admin') {
         const tabGuest = document.getElementById('tabGuest');
         const tabAdmin = document.getElementById('tabAdmin');
-        if (tabGuest) tabGuest.style.display = 'none';
-        if (tabAdmin) tabAdmin.style.display = 'none';
-      }
-      // If role is admin, show all 3 tabs to debug freely!
-      if (user.role === 'admin') {
+        if (tabGuest) tabGuest.remove();
+        if (tabAdmin) tabAdmin.remove();
+      } else {
         const tabGuest = document.getElementById('tabGuest');
         const tabGuard = document.getElementById('tabGuard');
         const tabAdmin = document.getElementById('tabAdmin');

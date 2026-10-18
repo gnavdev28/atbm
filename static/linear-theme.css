@@ -456,7 +456,7 @@ a, a:link, a:visited, a:hover, a:active {
 }
 
 .role-tab, a.role-tab, a.role-tab:link, a.role-tab:visited {
-  display: inline-flex !important;
+  display: inline-flex;
   align-items: center !important;
   gap: 6px !important;
   padding: 5px 12px !important;
@@ -468,6 +468,10 @@ a, a:link, a:visited, a:hover, a:active {
   border: 1px solid transparent !important;
   transition: all 0.15s ease !important;
   user-select: none !important;
+}
+
+.role-tab.hidden, a.role-tab.hidden {
+  display: none !important;
 }
 
 .role-tab:hover, a.role-tab:hover {
