@@ -473,16 +473,13 @@
                 <div class="qr-img-wrapper">
                   <div id="tamperQrContainer"></div>
                 </div>
-                <div style="display: flex; gap: 6px; width: 100%; margin-bottom: 8px;">
+                <div style="display: flex; gap: 6px; width: 100%;">
                   <button class="btn btn-secondary" onclick="downloadTamperedQr()" style="flex: 1; font-size: 11px; height: 28px;">
                     📥 Tải ảnh QR này
                   </button>
                   <button class="btn btn-secondary" onclick="copyTamperedPayload()" style="flex: 1; font-size: 11px; height: 28px;">
                     📋 Copy Payload
                   </button>
-                </div>
-                <div style="font-size: 11px; color: #818cf8; text-align: left; width: 100%; line-height: 1.4; border-top: 1px dashed var(--hairline); padding-top: 8px;">
-                  💡 <strong>Bước tiếp theo khi quay video:</strong> Tải ảnh QR này về, mang sang tab <a href="/gatekeeper" target="_blank" style="color:var(--primary); text-decoration:underline;">Cổng Soát Vé</a> tải ảnh lên để xem còi báo động kêu đỏ rực!
                 </div>
               </div>
 
@@ -523,12 +520,9 @@
                 <div class="qr-img-wrapper">
                   <div id="replayQrContainer"></div>
                 </div>
-                <button class="btn btn-secondary" onclick="downloadExpiredQr()" style="width: 100%; font-size: 11px; height: 28px; margin-bottom: 8px;">
+                <button class="btn btn-secondary" onclick="downloadExpiredQr()" style="width: 100%; font-size: 11px; height: 28px;">
                   📥 Tải ảnh QR quá hạn này
                 </button>
-                <div style="font-size: 11px; color: #818cf8; text-align: left; width: 100%; line-height: 1.4; border-top: 1px dashed var(--hairline); padding-top: 8px;">
-                  💡 <strong>Thử nghiệm thật:</strong> Mang ảnh này sang <a href="/gatekeeper" target="_blank" style="color:var(--primary); text-decoration:underline;">Cổng Soát Vé</a> quét thử. Cổng sẽ phát hiện mã đã quá 30 giây và từ chối ngay lập tức!
-                </div>
               </div>
 
               <div id="outputReplay" class="attack-output"></div>
