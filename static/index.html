@@ -392,16 +392,7 @@
       setEl('langIndicator', currentLang === 'vi' ? 'EN' : 'VI');
 
       // Cập nhật trạng thái vé ngay khi đổi ngôn ngữ
-      const stEl = document.getElementById('ticketStatus');
-      if (stEl) {
-        if (currentTicketStatus === 'ACTIVE') {
-          stEl.textContent = t.statusValid;
-          stEl.style.color = 'var(--success)';
-        } else {
-          stEl.textContent = t.statusUsed;
-          stEl.style.color = 'var(--danger)';
-        }
-      }
+      updateStatusUI();
     }
 
     function applyTheme() {
@@ -504,6 +495,57 @@
       drawLinearQR(payloadStr);
     }
 
+    function updateStatusUI() {
+      const t = i18n[currentLang];
+      const stEl = document.getElementById('ticketStatus');
+      if (stEl) {
+        if (currentTicketStatus === 'ACTIVE') {
+          stEl.textContent = t.statusValid;
+          stEl.style.color = 'var(--success)';
+        } else {
+          stEl.textContent = t.statusUsed;
+          stEl.style.color = 'var(--danger)';
+        }
+      }
+    }
+
+    function updateCountdownUI() {
+      const timerEl = document.getElementById('countdownTimer');
+      if (timerEl) timerEl.textContent = countdown + 's';
+      const pct = Math.max(0, Math.min(100, (countdown / 30) * 100));
+      const bar = document.getElementById('countdownBar');
+      if (bar) {
+        bar.style.width = pct + '%';
+        if (countdown <= 5) {
+          bar.style.backgroundColor = 'var(--danger)';
+        } else if (countdown <= 12) {
+          bar.style.backgroundColor = 'var(--warning)';
+        } else {
+          bar.style.backgroundColor = 'var(--primary)';
+        }
+      }
+    }
+
+    async function checkTicketStatusOnly() {
+      try {
+        const res = await fetch(`/api/tickets/${ticketId}`);
+        if (res.ok) {
+          const data = await res.json();
+          currentTicketStatus = data.status || 'ACTIVE';
+          updateStatusUI();
+          try {
+            const cached = JSON.parse(localStorage.getItem('active_ticket_cache') || 'null');
+            if (cached) {
+              cached.status = currentTicketStatus;
+              localStorage.setItem('active_ticket_cache', JSON.stringify(cached));
+            }
+          } catch (e) {}
+        }
+      } catch (e) {
+        console.warn("Không thể kiểm tra trạng thái vé:", e);
+      }
+    }
+
     async function fetchLiveQR() {
       try {
         const res = await fetch(`/api/tickets/${ticketId}/qr`);
@@ -514,20 +556,17 @@
           // Draw real cryptographic payload into QR code
           renderQRCode(JSON.stringify(payload));
 
-          // Save payload for gatekeeper testing
+          // Save payload for gatekeeper testing & active ticket caching
           localStorage.setItem('server_live_payload', JSON.stringify(payload));
+          localStorage.setItem('active_ticket_cache', JSON.stringify({
+            payload: payload,
+            createdAt: payload.ts || Math.floor(Date.now() / 1000),
+            status: data.status || 'ACTIVE'
+          }));
 
           // Update status
           currentTicketStatus = data.status || 'ACTIVE';
-          const t = i18n[currentLang];
-          const stEl = document.getElementById('ticketStatus');
-          if (currentTicketStatus === 'ACTIVE') {
-            stEl.textContent = t.statusValid;
-            stEl.style.color = 'var(--success)';
-          } else {
-            stEl.textContent = t.statusUsed;
-            stEl.style.color = 'var(--danger)';
-          }
+          updateStatusUI();
         }
       } catch (err) {
         console.error("Không thể kết nối máy chủ API:", err);
@@ -536,8 +575,35 @@
 
     function startCountdown() {
       if (timerHandle) clearInterval(timerHandle);
-      countdown = 30;
-      fetchLiveQR();
+
+      // Kiểm tra xem đã có mã QR còn hạn (<30s) trong cache không
+      let cached = null;
+      try {
+        cached = JSON.parse(localStorage.getItem('active_ticket_cache') || 'null');
+      } catch (e) {}
+
+      const now = Math.floor(Date.now() / 1000);
+      let remaining = 0;
+      if (cached && cached.payload && cached.createdAt) {
+        const elapsed = now - cached.createdAt;
+        remaining = 30 - elapsed;
+      }
+
+      if (remaining > 2) {
+        // Tái sử dụng đúng mã QR đang có, KHÔNG tạo mã mới và đếm tiếp từ số giây còn lại
+        countdown = remaining;
+        renderQRCode(JSON.stringify(cached.payload));
+        localStorage.setItem('server_live_payload', JSON.stringify(cached.payload));
+        if (cached.status) currentTicketStatus = cached.status;
+        updateStatusUI();
+        updateCountdownUI();
+        checkTicketStatusOnly();
+      } else {
+        // Mã đã hết hạn hoặc chưa có -> gọi server sinh mã QR mới
+        countdown = 30;
+        updateCountdownUI();
+        fetchLiveQR();
+      }
 
       timerHandle = setInterval(() => {
         countdown--;
@@ -545,26 +611,39 @@
           countdown = 30;
           fetchLiveQR();
         }
-        document.getElementById('countdownTimer').textContent = countdown + 's';
-        const pct = (countdown / 30) * 100;
-        const bar = document.getElementById('countdownBar');
-        bar.style.width = pct + '%';
-        if (countdown <= 5) {
-          bar.style.backgroundColor = 'var(--danger)';
-        } else if (countdown <= 12) {
-          bar.style.backgroundColor = 'var(--warning)';
-        } else {
-          bar.style.backgroundColor = 'var(--primary)';
-        }
+        updateCountdownUI();
       }, 1000);
     }
 
+    // Khi chuyển tab trình duyệt và quay lại, tự động tính lại số giây thực tế còn lại
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        let cached = null;
+        try {
+          cached = JSON.parse(localStorage.getItem('active_ticket_cache') || 'null');
+        } catch (e) {}
+
+        if (cached && cached.createdAt) {
+          const now = Math.floor(Date.now() / 1000);
+          const elapsed = now - cached.createdAt;
+          const remaining = 30 - elapsed;
+          if (remaining > 1) {
+            countdown = remaining;
+            updateCountdownUI();
+            checkTicketStatusOnly();
+          } else {
+            countdown = 30;
+            updateCountdownUI();
+            fetchLiveQR();
+          }
+        }
+      }
+    });
+
     function forceRotateQR() {
+      localStorage.removeItem('active_ticket_cache');
       countdown = 30;
-      const bar = document.getElementById('countdownBar');
-      bar.style.width = '100%';
-      bar.style.backgroundColor = 'var(--primary)';
-      document.getElementById('countdownTimer').textContent = '30s';
+      updateCountdownUI();
       fetchLiveQR();
     }
 
@@ -598,6 +677,7 @@
       try {
         const res = await fetch(`/api/tickets/${ticketId}/reset`, { method: "POST" });
         if (res.ok) {
+          localStorage.removeItem('active_ticket_cache');
           forceRotateQR();
         } else {
           alert("Không thể đặt lại vé!");
