@@ -278,29 +278,6 @@
       margin-bottom: 20px;
     }
 
-    .video-guide-banner {
-      background: rgba(99, 102, 241, 0.08);
-      border: 1px solid rgba(99, 102, 241, 0.25);
-      border-radius: 8px;
-      padding: 14px 16px;
-      margin-bottom: 20px;
-    }
-    .video-guide-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 12px;
-      margin-top: 10px;
-    }
-    .guide-step-card {
-      background: var(--surface-1);
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid var(--hairline);
-      font-size: 12px;
-      line-height: 1.5;
-      color: var(--ink-subtle);
-    }
-
     table.data-table {
       width: 100%;
       border-collapse: collapse;
@@ -456,32 +433,6 @@
 
       <!-- TAB 1: ATTACK SIMULATIONS & LIVE EXPLOIT WORKSHOP -->
       <div id="tabAttacks" class="tab-content active">
-
-        <!-- Master Video Demo Guide Banner -->
-        <div class="video-guide-banner">
-          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #818cf8; font-size: 13px;">
-              <span>🎬 KỊCH BẢN QUAY VIDEO DEMO THỰC TẾ (100% THUYẾT PHỤC - KHÔNG LO BỊ BẢO MÔ PHỎNG CỨNG)</span>
-            </div>
-            <span style="font-size: 11px; color: var(--ink-subtle);">Mở song song 2 tab: Cổng Soát Vé (/gatekeeper) & Phòng Lab (/admin)</span>
-          </div>
-
-          <div class="video-guide-grid">
-            <div class="guide-step-card">
-              <div style="font-weight: 600; color: var(--danger); margin-bottom: 4px;">1. Bắt quả tang mã vé bị làm giả</div>
-              Tại Thẻ 1 bên dưới, chỉnh hạng vé tùy ý rồi bấm <strong>"🛠️ Tạo Mã QR Giả Mạo Ngay"</strong>. Bấm tải ảnh QR về máy, mang sang tab <code>/gatekeeper</code> tải ảnh lên. Cổng quét ảnh thật và hú còi báo động đỏ rực vì sai chữ ký ECDSA!
-            </div>
-            <div class="guide-step-card">
-              <div style="font-weight: 600; color: var(--warning); margin-bottom: 4px;">2. Bắt quả tang gian lận vé cũ (Replay)</div>
-              Tại Cổng Soát Vé <code>/gatekeeper</code>, quét mã QR hợp lệ lần 1 (Xanh - Thành công). Ngay lập tức quét lại mã đó lần 2 (Đỏ - Cổng từ chối: <em>"Vé đã được sử dụng trước đó"</em>)! Hoặc tải ảnh QR quá hạn ở Thẻ 2 quét thử.
-            </div>
-            <div class="guide-step-card">
-              <div style="font-weight: 600; color: var(--primary); margin-bottom: 4px;">3. Thách thức 20 cổng quét cùng lúc</div>
-              Tại Thẻ 3, kéo slider 20 luồng -> Bấm <strong>"💥 Bắn Luồng Đồng Thời"</strong>. Xem 20 cổng nhấp nháy, duy nhất 1 cổng xanh, 19 cổng đỏ. Bấm nút xem trực tiếp 20 dòng log thật trong CSDL SQLite!
-            </div>
-          </div>
-        </div>
-
         <div class="attacks-grid">
           
           <!-- Attack 1: Forgery / Tamper -->
