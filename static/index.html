@@ -9,6 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/linear-theme.css?v=2.5">
   <script src="/static/qrcode.min.js"></script>
+  <script>
+    (function() {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <style>
     /* 3-Level Role Selector Navigation Styles */
     .role-selector-bar {
@@ -324,7 +330,7 @@
   </footer>
 
   <script>
-    let currentLang = 'vi';
+    let currentLang = localStorage.getItem('lang') || 'vi';
     let currentTicketStatus = 'ACTIVE';
 
     const i18n = {
@@ -398,17 +404,27 @@
       }
     }
 
+    function applyTheme() {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      const icon = document.getElementById('themeIcon');
+      if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
     function toggleLanguage() {
       currentLang = currentLang === 'vi' ? 'en' : 'vi';
+      localStorage.setItem('lang', currentLang);
       applyI18n();
     }
 
     function toggleTheme() {
       const root = document.documentElement;
-      const current = root.getAttribute('data-theme');
+      const current = root.getAttribute('data-theme') || 'dark';
       const next = current === 'dark' ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
-      document.getElementById('themeIcon').textContent = next === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('theme', next);
+      const icon = document.getElementById('themeIcon');
+      if (icon) icon.textContent = next === 'dark' ? '☀️' : '🌙';
     }
 
     let countdown = 30;
@@ -623,6 +639,7 @@
     }
 
     window.onload = function() {
+      applyTheme();
       if (!checkPageAuth()) return;
       applyI18n();
       startCountdown();

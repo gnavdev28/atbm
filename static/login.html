@@ -8,6 +8,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/linear-theme.css">
+  <script>
+    (function() {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <style>
     .login-container {
       max-width: 960px;
@@ -444,26 +450,37 @@
   </footer>
 
   <script>
-    let currentLang = 'vi';
+    let currentLang = localStorage.getItem('lang') || 'vi';
+
+    function applyTheme() {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      const icon = document.getElementById('themeIcon');
+      if (icon) icon.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
 
     function toggleTheme() {
       const html = document.documentElement;
-      const nextTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      const current = html.getAttribute('data-theme') || 'dark';
+      const nextTheme = current === 'dark' ? 'light' : 'dark';
       html.setAttribute('data-theme', nextTheme);
-      document.getElementById('themeIcon').innerText = nextTheme === 'dark' ? '☀️' : '🌙';
       localStorage.setItem('theme', nextTheme);
+      const icon = document.getElementById('themeIcon');
+      if (icon) icon.innerText = nextTheme === 'dark' ? '☀️' : '🌙';
     }
 
     function toggleLanguage() {
       currentLang = currentLang === 'vi' ? 'en' : 'vi';
-      document.getElementById('langIndicator').innerText = currentLang === 'vi' ? 'EN' : 'VI';
+      localStorage.setItem('lang', currentLang);
+      const indicator = document.getElementById('langIndicator');
+      if (indicator) indicator.innerText = currentLang === 'vi' ? 'EN' : 'VI';
     }
 
     // Check existing login
     window.addEventListener('DOMContentLoaded', () => {
-      const savedTheme = localStorage.getItem('theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      document.getElementById('themeIcon').innerText = savedTheme === 'dark' ? '☀️' : '🌙';
+      applyTheme();
+      const indicator = document.getElementById('langIndicator');
+      if (indicator) indicator.innerText = currentLang === 'vi' ? 'EN' : 'VI';
 
       const user = JSON.parse(localStorage.getItem('securepass_user') || 'null');
       if (user && user.role) {
